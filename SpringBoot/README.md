@@ -20,3 +20,4 @@
 1) MySQL에서 `test` 스키마 생성
 2) Spring Boot 서버 실행
 3) 테이블 자동생성 확인 가능
+<img width="161" height="179" alt="image" src="https://github.com/user-attachments/assets/2bad33f1-c004-4e53-b924-27849f49a7df" />
