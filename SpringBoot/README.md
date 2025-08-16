@@ -27,7 +27,8 @@
 * ✅ **계정 생성 API 연동** 및 응답 수신
 * ✅ **DB 설계**: `user_info`, `grade_record`, `subject_grade`
 * ✅ **계정 DB 저장 플로우 완료** (외부 API → DTO 매핑 → UserInfo 저장)
-![alt text](image.png)
+<img width="917" height="98" alt="image" src="https://github.com/user-attachments/assets/4ab2755c-e094-4a66-aaba-56ab20a0af49" />
+
 
 ---
 
