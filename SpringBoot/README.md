@@ -18,7 +18,6 @@
 
 ---
 
-<<<<<<< HEAD
 ## 3) DB 설계 & API 설계
 
 ### 개요
@@ -27,7 +26,8 @@
 * ✅ **계정 생성 API 연동** 및 응답 수신
 * ✅ **DB 설계**: `user_info`, `grade_record`, `subject_grade`
 * ✅ **계정 DB 저장 플로우 완료** (외부 API → DTO 매핑 → UserInfo 저장)
-![alt text](image.png)
+<img width="917" height="98" alt="image" src="https://github.com/user-attachments/assets/4ab2755c-e094-4a66-aaba-56ab20a0af49" />
+
 
 ---
 
@@ -110,10 +110,7 @@ UserInfo (user_id PK)
    * 저장 결과를 화면(텍스트)로 간단 출력
 
 ---
-=======
-## 3. 실행 전 준비 (테스트 방법)
+
+## 실행 전 준비 (테스트 방법)
 1) MySQL에서 `test` 스키마 생성
 2) Spring Boot 서버 실행
-3) 테이블 자동생성 확인 가능
-
->>>>>>> 4f20de26fc9e2e32eee93764f6a05908d8ce8016
