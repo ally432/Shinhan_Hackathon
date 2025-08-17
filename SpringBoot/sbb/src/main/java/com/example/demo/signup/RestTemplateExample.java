@@ -1,4 +1,3 @@
-// com.example.demo.signup.RestTemplateExample (기존 클래스에 추가/변경)
 package com.example.demo.signup;
 
 import java.util.Map;
