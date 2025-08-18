@@ -30,6 +30,7 @@
 * ✅ 로그인 구현 및 **Flutter ↔ Spring Boot 연동**
 * ✅ 자동 로그인 기능 (**SharedPreferences**) 적용
 * ✅ 유저 DB **자동 생성기능 추가**
+* ✅ 계좌가입정보 DB 추가 생성
 
 ---
 
@@ -97,9 +98,6 @@ UserInfo (user_id PK)
 
 ## 오늘 작업한 내용
 
-* ✅ 계정 생성 API Flutter ↔ Spring Boot 연동
-* ✅ 로그인 구현 및 Flutter ↔ Spring Boot 연동
-* ✅ 자동 로그인 기능 (SharedPreferences) 적용
-* ✅ 유저 DB 자동 생성기능 추가
+* ✅ 계좌가입정보 DB 추가 생성
 
 ---
