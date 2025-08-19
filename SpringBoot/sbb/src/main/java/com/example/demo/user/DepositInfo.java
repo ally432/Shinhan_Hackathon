@@ -8,7 +8,7 @@ import lombok.Setter;
 @Setter
 @Entity
 @Table(
-    name = "AccountInfo",
+    name = "DepositInfo",
     uniqueConstraints = {
         @UniqueConstraint(name = "uk_account_no", columnNames = {"accountNo"})
     },
@@ -17,7 +17,7 @@ import lombok.Setter;
         @Index(name = "idx_withdrawal_bank_code", columnList = "withdrawalBankCode")
     }
 )
-public class AccountInfo {
+public class DepositInfo {
 
     @Id
     @Column(length = 40, nullable = false)
@@ -65,4 +65,7 @@ public class AccountInfo {
 
     @Column(length = 8, nullable = false)
     private String accountExpiryDate;
+    
+    @Column(length = 3, nullable = false)
+    private String goalScore;
 }
