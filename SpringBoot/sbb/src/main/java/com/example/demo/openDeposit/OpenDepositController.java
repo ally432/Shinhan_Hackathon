@@ -1,23 +1,23 @@
-package com.example.demo.openAccount;
+package com.example.demo.openDeposit;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
-public class OpenController {
+public class OpenDepositController {
 
-    private final ToDepositOA restTemplateDeposit;
+    private final RestTemplateOpenDeposite restTemplateDeposit;
 
-    public OpenController(ToDepositOA restTemplateDeposit) {
+    public OpenDepositController(RestTemplateOpenDeposite restTemplateDeposit) {
         this.restTemplateDeposit = restTemplateDeposit;
     }
 
-    @GetMapping("/deposit/open")
+    @GetMapping("/deposit/openDeposit")
     @ResponseBody
     public String createDepositProduct() {
         String apiResult = restTemplateDeposit.createDepositProduct();
-        return "수시 입출금 상품 입금 결과:\n" + apiResult;
+        return "예금 상품 개설 요청 결과:\n" + apiResult;
     }
 }
 

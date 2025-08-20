@@ -10,7 +10,7 @@ import lombok.Setter;
 @Table(
     name = "CheckingAccount",
     uniqueConstraints = {
-        @UniqueConstraint(name = "uk_checking_account_no", columnNames = {"accountNo"})
+        @UniqueConstraint(name = "uk_account_user", columnNames = {"userKey", "accountNo"})
     },
     indexes = {
         @Index(name = "idx_bank_code", columnList = "bankCode")
@@ -19,13 +19,16 @@ import lombok.Setter;
 public class CheckingAccount {
 
     @Id
-    @Column(length = 40, nullable = false)
-    private String userId;  // PK (UserInfo와 동일 키)
+    @Column(length = 16, nullable = false)
+    private String accountNo;  // PK 계좌 번호
 
-    @OneToOne
+    @Column(length = 60, nullable = false)
+    private String userKey;    // UserInfo와 매핑되는 사용자 키
+
+    @ManyToOne
     @JoinColumn(
-        name = "userId",
-        referencedColumnName = "userId",
+        name = "userKey",
+        referencedColumnName = "userKey",
         insertable = false,
         updatable = false
     )
@@ -34,11 +37,11 @@ public class CheckingAccount {
     @Column(length = 3, nullable = false)
     private String bankCode;   // 은행 코드
 
-    @Column(length = 16, nullable = false)
-    private String accountNo;  // 계좌 번호
+    @Column(nullable = false)
+    private Long balance;      // 잔액
 
     @Column(length = 6, nullable = false)
-    private String currency;   // 통화 코드 (예: KRW, USD, EUR 등)
+    private String currency;   // 통화 코드 (예: KRW, USD, EUR)
 
     @Column(length = 16, nullable = false)
     private String currencyName;  // 통화 이름 (예: 원화, 달러, 유로)

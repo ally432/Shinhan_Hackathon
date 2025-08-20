@@ -34,6 +34,9 @@
 * ✅ 계좌가입정보 DB 추가 생성
 * ✅ 수시입출금 상품 등록
 * ✅ 수시입출금 계좌 생성 테스트 완료
+* ✅ 수시입출금 입금 테스트 완료
+* ✅ 예금 계좌 생성 테스트 완료
+* ✅ DB 개선
 
 ---
 
@@ -60,58 +63,62 @@ UserInfo (user_id PK)
 | created           | DATETIME    |    | 생성일시              |
 | modified          | DATETIME    |    | 수정일시              |
 
-### 5.2 grade\_record
+### 5.2 checking\_account
 
-| 컬럼명            | 타입          | PK | 설명           |
-| -------------- | ----------- | -- | ------------ |
-| user\_id       | VARCHAR(40) | ✅  | UserInfo FK  |
-| total\_credits | INT         |    | 취득학점         |
-| total\_gpa     | DOUBLE      |    | 취득평점         |
-| year           | INT         |    | 연도 (예: 2025) |
-| semester       | INT         |    | 학기 (1 or 2)  |
-| type           | VARCHAR(10) |    | 성적 유형        |
+| 컬럼명            | 타입          | PK | 설명                    |
+| -------------- | ----------- | -- | --------------------- |
+| account\_no    | VARCHAR(16) | ✅  | 계좌 번호 (PK)            |
+| user\_key      | VARCHAR(60) |    | UserInfo.user\_key 참조 |
+| bank\_code     | VARCHAR(3)  |    | 은행 코드                 |
+| balance        | BIGINT      |    | 잔액                    |
+| currency       | VARCHAR(6)  |    | 통화 코드 (예: KRW, USD)   |
+| currency\_name | VARCHAR(16) |    | 통화 이름 (예: 원화, 달러)     |
 
-### 5.3 subject\_grade
+* **Unique**: (user\_key, account\_no)
+* **Index**: bank\_code
 
-| 컬럼명                     | 타입          | PK | 설명                        |
-| ----------------------- | ----------- | -- | ------------------------- |
-| id                      | BIGINT      | ✅  | PK                        |
-| subject\_name           | VARCHAR(50) |    | 과목명                       |
-| credit                  | DOUBLE      |    | 학점                        |
-| grade                   | VARCHAR(10) |    | 등급                        |
-| score                   | DOUBLE      |    | 평점                        |
-| grade\_record\_user\_id | VARCHAR(40) |    | grade\_record.user\_id 참조 |
+### 5.3 deposit\_info
 
-좋습니다 👍 원하신 형식(`subject_grade` 테이블 설명처럼 Markdown 테이블로 컬럼·타입·PK·설명`)으로  
-`CheckingAccount`과`DepositInfo\` 엔티티에 대한 DB 스키마 요약을 정리해드릴게요.
+| 컬럼명                     | 타입          | PK | 설명                    |
+| ----------------------- | ----------- | -- | --------------------- |
+| account\_no             | VARCHAR(16) | ✅  | 계좌 번호 (PK)            |
+| user\_key               | VARCHAR(60) |    | UserInfo.user\_key 참조 |
+| bank\_code              | VARCHAR(3)  |    | 은행 코드                 |
+| bank\_name              | VARCHAR(20) |    | 은행 이름                 |
+| account\_name           | VARCHAR(20) |    | 계좌 이름                 |
+| withdrawal\_bank\_code  | VARCHAR(3)  |    | 출금 은행 코드              |
+| withdrawal\_account\_no | VARCHAR(16) |    | 출금 계좌 번호              |
+| subscription\_period    | VARCHAR(20) |    | 가입 기간 (예: 12M, 1Y)    |
+| deposit\_balance        | BIGINT      |    | 예치 잔액                 |
+| interest\_rate          | DOUBLE      |    | 금리                    |
+| account\_create\_date   | VARCHAR(8)  |    | 계좌 개설일 (YYYYMMDD)     |
+| account\_expiry\_date   | VARCHAR(8)  |    | 계좌 만기일 (YYYYMMDD)     |
+| goal\_score             | VARCHAR(3)  |    | 목표 점수                 |
 
-### 5.4 checking\_account
+* **Unique**: (user\_key, account\_no)
+* **Index**: bank\_code, withdrawal\_bank\_code
 
-| 컬럼명            | 타입          | PK | 설명                             |
-| -------------- | ----------- | -- | ------------------------------ |
-| user\_id       | VARCHAR(40) | ✅  | UserInfo.user\_id 참조, PK (1:1) |
-| bank\_code     | VARCHAR(3)  |    | 은행 코드                          |
-| account\_no    | VARCHAR(16) |    | 계좌 번호, 유니크 제약                  |
-| currency       | VARCHAR(6)  |    | 통화 코드 (예: KRW, USD)            |
-| currency\_name | VARCHAR(16) |    | 통화 이름 (예: 원화, 달러, 유로)          |
+### 5.4 grade\_record
 
-### 5.4 deposit\_info
+| 컬럼명            | 타입          | PK | 설명                      |
+| -------------- | ----------- | -- | ----------------------- |
+| user\_key      | VARCHAR(60) | ✅  | UserInfo.user\_key (PK) |
+| total\_credits | INT         |    | 총 이수 학점                 |
+| total\_gpa     | DOUBLE      |    | 총 평점(GPA)               |
+| year           | INT         |    | 년도                      |
+| semester       | INT         |    | 학기                      |
+| type           | VARCHAR(10) |    | 구분값(예: 전공/교양 등)         |
 
-| 컬럼명                     | 타입          | PK | 설명                             |
-| ----------------------- | ----------- | -- | ------------------------------ |
-| user\_id                | VARCHAR(40) | ✅  | UserInfo.user\_id 참조, PK (1:1) |
-| bank\_code              | VARCHAR(3)  |    | 은행 코드                          |
-| bank\_name              | VARCHAR(20) |    | 은행 이름                          |
-| account\_no             | VARCHAR(16) |    | 계좌 번호, 유니크 제약                  |
-| account\_name           | VARCHAR(20) |    | 계좌 이름                          |
-| withdrawal\_bank\_code  | VARCHAR(3)  |    | 출금 은행 코드                       |
-| withdrawal\_account\_no | VARCHAR(16) |    | 출금 계좌 번호                       |
-| subscription\_period    | VARCHAR(20) |    | 가입 기간 (예: 12M, 1Y)             |
-| deposit\_balance        | BIGINT      |    | 예치 잔액                          |
-| interest\_rate          | DOUBLE      |    | 금리                             |
-| account\_create\_date   | VARCHAR(8)  |    | 계좌 개설일 (YYYYMMDD)              |
-| account\_expiry\_date   | VARCHAR(8)  |    | 계좌 만기일 (YYYYMMDD)              |
-| goal\_score             | VARCHAR(3)  |    | 목표 점수 (업무 규칙상 사용)              |
+### 5.5 subject\_grade
+
+| 컬럼명                      | 타입          | PK | 설명                               |
+| ------------------------ | ----------- | -- | -------------------------------- |
+| id                       | BIGINT      | ✅  | PK (AUTO INCREMENT)              |
+| subject\_name            | VARCHAR(50) |    | 과목명                              |
+| credit                   | DOUBLE      |    | 학점                               |
+| grade                    | VARCHAR(10) |    | 등급                               |
+| score                    | DOUBLE      |    | 평점                               |
+| grade\_record\_user\_key | VARCHAR(60) | FK | grade\_record.user\_key 참조 (외래키) |
 
 ---
 
@@ -132,7 +139,8 @@ UserInfo (user_id PK)
 
 ## 오늘 작업한 내용
 
-* ✅ 수시입출금 상품 등록 완료
-* ✅ 수시입출금 계좌 생성 테스트 완료
+* ✅ 수시 입출금 입금 테스트 완료
+* ✅ 예금 계좌 생성 테스트 완료
+* ✅ DB 개선
 
 ---
