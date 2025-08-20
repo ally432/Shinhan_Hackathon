@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend_flutter_yj/models/account_model.dart';
+import 'package:frontend_flutter_yj/screens/banking/account_termination_screen.dart';
 
 class AccountManagementScreen extends StatelessWidget {
   final Account account;
@@ -17,7 +18,6 @@ class AccountManagementScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 상단 계좌 정보 카드
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: Container(
@@ -43,8 +43,6 @@ class AccountManagementScreen extends StatelessWidget {
                 ),
               ),
             ),
-
-            // 기본 정보 섹션
             Container(
               color: Colors.white,
               padding: const EdgeInsets.symmetric(vertical: 8),
@@ -59,10 +57,7 @@ class AccountManagementScreen extends StatelessWidget {
                 ],
               ),
             ),
-
             const SizedBox(height: 12),
-
-            // 관리 정보 섹션
             Container(
               color: Colors.white,
               child: Column(
@@ -106,14 +101,21 @@ class AccountManagementScreen extends StatelessWidget {
       title: Text(title, style: const TextStyle(fontSize: 16)),
       trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
       onTap: () {
-        showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: Text(title),
-            content: const Text('해당 기능을 실행합니다.'),
-            actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('확인'))],
-          ),
-        );
+        if (title == '계좌 해지') {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => AccountTerminationScreen(account: account)),
+          );
+        } else {
+          showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: Text(title),
+              content: const Text('해당 기능을 실행합니다.'),
+              actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('확인'))],
+            ),
+          );
+        }
       },
       contentPadding: const EdgeInsets.symmetric(horizontal: 16.0),
     );
