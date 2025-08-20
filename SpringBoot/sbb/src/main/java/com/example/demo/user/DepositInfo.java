@@ -10,7 +10,7 @@ import lombok.Setter;
 @Table(
     name = "DepositInfo",
     uniqueConstraints = {
-        @UniqueConstraint(name = "uk_account_no", columnNames = {"accountNo"})
+        @UniqueConstraint(name = "uk_account_user", columnNames = {"userKey", "accountNo"})
     },
     indexes = {
         @Index(name = "idx_bank_code", columnList = "bankCode"),
@@ -20,13 +20,16 @@ import lombok.Setter;
 public class DepositInfo {
 
     @Id
-    @Column(length = 40, nullable = false)
-    private String userId;  // PK (UserInfo와 동일 키)
+    @Column(length = 16, nullable = false)
+    private String accountNo;   // PK: 계좌 번호
 
-    @OneToOne
+    @Column(length = 60, nullable = false)
+    private String userKey;     // UserInfo와 매핑되는 사용자 키
+
+    @ManyToOne
     @JoinColumn(
-        name = "userId",
-        referencedColumnName = "userId",
+        name = "userKey",
+        referencedColumnName = "userKey",
         insertable = false,
         updatable = false
     )
@@ -37,9 +40,6 @@ public class DepositInfo {
 
     @Column(length = 20, nullable = false)
     private String bankName;
-
-    @Column(length = 16, nullable = false)
-    private String accountNo;
 
     @Column(length = 20, nullable = false)
     private String accountName;
@@ -59,7 +59,7 @@ public class DepositInfo {
     @Column(nullable = false)
     private Double interestRate;
 
-    // 계좌 개설/만기일 (YYYYMMDD 형태라 length=8)
+    // 계좌 개설/만기일 (YYYYMMDD 형태, 길이=8)
     @Column(length = 8, nullable = false)
     private String accountCreateDate;
 

@@ -12,11 +12,11 @@ import java.util.List;
 public class GradeRecord {
 
     @Id
-    @Column(length = 40, nullable = false)
-    private String userId;  // Primary Key, UserInfo의 PK와 동일
+    @Column(length = 60, nullable = false)
+    private String userKey;  // Primary Key, UserInfo의 PK와 동일
 
     @OneToOne
-    @JoinColumn(name = "userId", referencedColumnName = "userId", insertable = false, updatable = false)
+    @JoinColumn(name = "userKey", referencedColumnName = "userKey", insertable = false, updatable = false)
     private UserInfo userInfo;
 
     // 전체 성적
