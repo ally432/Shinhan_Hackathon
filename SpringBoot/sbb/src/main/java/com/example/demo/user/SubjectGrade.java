@@ -24,6 +24,6 @@ public class SubjectGrade {
     private Double score;
 
     @ManyToOne
-    @JoinColumn(name = "grade_record_user_key", nullable = false)
+    @JoinColumn(name = "grade_record_id", nullable = false)
     private GradeRecord gradeRecord;
 }
