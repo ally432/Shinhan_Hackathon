@@ -29,7 +29,7 @@
 * ✅ 계정 생성 API **Flutter ↔ Spring Boot 연동**
 * ✅ 로그인 구현 및 **Flutter ↔ Spring Boot 연동**
 * ✅ 자동 로그인 기능 (**SharedPreferences**) 적용
-* ✅ 유저 DB **자동 생성기능 추가**
+* ✅ 유저 DB 씨드 데이터 **자동 생성기능 추가**
 * ✅ 예금 상품 등록
 * ✅ 계좌가입정보 DB 추가 생성
 * ✅ 수시입출금 상품 등록
@@ -37,6 +37,8 @@
 * ✅ 수시입출금 입금 테스트 완료
 * ✅ 예금 계좌 생성 테스트 완료
 * ✅ DB 개선
+* ✅ 성적 DB 수정(grade\_record, subject\_grade)
+* ✅ 성적 씨드 데이터 생성
 
 ---
 
@@ -102,23 +104,24 @@ UserInfo (user_id PK)
 
 | 컬럼명            | 타입          | PK | 설명                      |
 | -------------- | ----------- | -- | ----------------------- |
-| user\_key      | VARCHAR(60) | ✅  | UserInfo.user\_key (PK) |
+| id             | BIGINT      | ✅  | 고유 식별자 (자동 증가)          |
+| user\_id       | VARCHAR(40) |    | 사용자 식별자 (user\_info 참조) |
 | total\_credits | INT         |    | 총 이수 학점                 |
-| total\_gpa     | DOUBLE      |    | 총 평점(GPA)               |
+| total\_gpa     | DOUBLE      |    | 총 평점 평균                 |
 | year           | INT         |    | 년도                      |
-| semester       | INT         |    | 학기                      |
-| type           | VARCHAR(10) |    | 구분값(예: 전공/교양 등)         |
+| semester       | INT         |    | 학기 (1: 1학기, 2: 2학기)     |
+| type           | VARCHAR(10) |    | 구분 (전공/교양 등)            |
 
 ### 5.5 subject\_grade
 
-| 컬럼명                      | 타입          | PK | 설명                               |
-| ------------------------ | ----------- | -- | -------------------------------- |
-| id                       | BIGINT      | ✅  | PK (AUTO INCREMENT)              |
-| subject\_name            | VARCHAR(50) |    | 과목명                              |
-| credit                   | DOUBLE      |    | 학점                               |
-| grade                    | VARCHAR(10) |    | 등급                               |
-| score                    | DOUBLE      |    | 평점                               |
-| grade\_record\_user\_key | VARCHAR(60) | FK | grade\_record.user\_key 참조 (외래키) |
+| 컬럼명               | 타입          | PK | 설명                           |
+| ----------------- | ----------- | -- | ---------------------------- |
+| id                | BIGINT      | ✅  | 고유 식별자 (자동 증가)               |
+| subject\_name     | VARCHAR(50) |    | 과목명                          |
+| credit            | DOUBLE      |    | 학점                           |
+| grade             | VARCHAR(10) |    | 등급 (A, B+, C 등)              |
+| score             | DOUBLE      |    | 점수                           |
+| grade\_record\_id | BIGINT      | FK | grade\_record.id 참조 (N:1 관계) |
 
 ---
 
@@ -139,8 +142,7 @@ UserInfo (user_id PK)
 
 ## 오늘 작업한 내용
 
-* ✅ 수시 입출금 입금 테스트 완료
-* ✅ 예금 계좌 생성 테스트 완료
-* ✅ DB 개선
+* ✅ 성적 DB 수정(grade\_record, subject\_grade) (프로그램 실행 시 자동생성 가능)
+* ✅ 성적 씨드 데이터 생성 (프로그램 실행 시 자동생성 가능)
 
 ---
