@@ -2,6 +2,8 @@ package com.example.demo.user;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
+import java.time.temporal.ChronoField;
 import java.util.List;
 
 import org.springframework.boot.CommandLineRunner;
@@ -15,9 +17,14 @@ import com.example.demo.signup.UserInfoRepository;
 @Profile("seed")
 public class UserInfoSeeder {
 
-    private static final DateTimeFormatter F =
-            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSSSS");
+    // 마이크로초(소수점) 자릿수 0~9 허용
+    private static final DateTimeFormatter FLEX =
+        new DateTimeFormatterBuilder()
+            .appendPattern("yyyy-MM-dd HH:mm:ss")
+            .optionalStart().appendLiteral('.').appendFraction(ChronoField.MICRO_OF_SECOND, 1, 9, false).optionalEnd()
+            .toFormatter();
 
+    // userId, created, institutionCode, modified, userKey, username
     private static final List<String[]> RAW = List.of(
         new String[]{"123456@ssafy.com","2025-08-17 07:57:53.954714","00100","2025-08-17 07:57:53.954714","e8a7d57a-8bb7-41d2-ab3d-f03f0cb20ff8","123456"},
         new String[]{"asdadsd111111@asdsdsad.com","2025-08-16 13:16:05.062144","00100","2025-08-16 13:16:05.062144","760a0369-3f4b-4157-95ce-67725398a33a","asdadsd111"},
@@ -35,27 +42,47 @@ public class UserInfoSeeder {
         return args -> {
             for (String[] r : RAW) {
                 String userId = r[0];
+                String institutionCode = r[2];
+                String userKey = r[4];
+                String username = r[5];
 
-                if (repo.existsById(userId)) continue;
+                LocalDateTime created  = parseFlex(r[1]);
+                LocalDateTime modified = parseFlex(r[3]);
 
-                UserInfo u = new UserInfo();
-                u.setUserId(trunc(userId, 40));
-                u.setInstitutionCode(trunc(r[2], 40));
-                u.setUserKey(trunc(r[4], 60));
-                u.setUsername(trunc(r[5], 10));
-
-                LocalDateTime created  = LocalDateTime.parse(r[1], F);
-                LocalDateTime modified = LocalDateTime.parse(r[3], F);
-                u.setCreated(created);
-                u.setModified(modified);
-
-                repo.save(u);
+                repo.findById(userId).ifPresentOrElse(existing -> {
+                    // ✅ 업데이트 (upsert)
+                    existing.setInstitutionCode(trunc(institutionCode, 40));
+                    existing.setUserKey(trunc(userKey, 60));
+                    existing.setUsername(trunc(username, 10));
+                    existing.setModified(modified != null ? modified : LocalDateTime.now());
+                    repo.save(existing);
+                }, () -> {
+                    // ✅ 신규 생성
+                    UserInfo u = new UserInfo();
+                    u.setUserId(trunc(userId, 40));
+                    u.setInstitutionCode(trunc(institutionCode, 40));
+                    u.setUserKey(trunc(userKey, 60));
+                    u.setUsername(trunc(username, 10));
+                    u.setCreated(created != null ? created : LocalDateTime.now());
+                    u.setModified(modified != null ? modified : u.getCreated());
+                    repo.save(u);
+                });
             }
         };
+    }
+
+    private static LocalDateTime parseFlex(String s) {
+        if (s == null) return null;
+        try {
+            return LocalDateTime.parse(s, FLEX);
+        } catch (Exception e) {
+            return null; // 실패 시 호출부에서 now() 대입
+        }
     }
 
     private static String trunc(String s, int max) {
         if (s == null) return null;
         return s.length() > max ? s.substring(0, max) : s;
+        // 필요하면 잘림 로깅 추가 가능
     }
 }
