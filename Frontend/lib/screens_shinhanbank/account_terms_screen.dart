@@ -1,22 +1,25 @@
 import 'package:flutter/material.dart';
-import 'login_screen.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'account_creation_screen.dart';
 
+class AccountTermsScreen extends StatefulWidget {
+  final String? imagePath;
 
-class TermsScreen extends StatefulWidget {
+  const AccountTermsScreen({super.key, this.imagePath});
+
   @override
-  _TermsScreenState createState() => _TermsScreenState();
+  State<AccountTermsScreen> createState() => _AccountOpeningTermsScreenState();
 }
 
-class _TermsScreenState extends State<TermsScreen> {
+class _AccountOpeningTermsScreenState extends State<AccountTermsScreen> {
   bool _allAgreed = false;
   bool _term1Agreed = false;
   bool _term2Agreed = false;
   bool _term3Agreed = false;
+  bool _term4Agreed = false;
 
   void _updateAllAgreed() {
     setState(() {
-      _allAgreed = _term1Agreed && _term2Agreed && _term3Agreed;
+      _allAgreed = _term1Agreed && _term2Agreed && _term3Agreed && _term4Agreed;
     });
   }
 
@@ -26,22 +29,23 @@ class _TermsScreenState extends State<TermsScreen> {
       _term1Agreed = value;
       _term2Agreed = value;
       _term3Agreed = value;
+      _term4Agreed = value;
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFFF5F5F5),
+      backgroundColor: const Color(0xFFF5F5F5),
       appBar: AppBar(
-        backgroundColor: Color(0xFFF5F5F5),
+        backgroundColor: const Color(0xFFF5F5F5),
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.black87),
+          icon: const Icon(Icons.arrow_back, color: Colors.black87),
           onPressed: () => Navigator.pop(context),
         ),
-        title: Text(
-          '신한카드 Hey Young 체크',
+        title: const Text(
+          '수시입출금 계좌 개설 약관',
           style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold),
         ),
       ),
@@ -49,100 +53,125 @@ class _TermsScreenState extends State<TermsScreen> {
         children: [
           Expanded(
             child: SingleChildScrollView(
-              padding: EdgeInsets.all(16),
+              padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // 카드 이미지 섹션
+                  // 계좌 정보 섹션
                   Center(
                     child: Column(
                       children: [
-                        Text(
-                          '신한카드 Hey Young 체크',
+                        const Text(
+                          '신한 SOL 수시입출금통장',
                           style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
                             color: Colors.black87,
                           ),
                         ),
-                        SizedBox(height: 16),
+                        const SizedBox(height: 16),
                         // 서비스 태그들
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            _buildServiceTag('생활 서비스'),
-                            SizedBox(width: 8),
-                            _buildServiceTag('간편결제 서비스'),
-                            SizedBox(width: 8),
-                            _buildServiceTag('해외이용 서비스'),
+                            _buildServiceTag('연회비 없음'),
+                            const SizedBox(width: 8),
+                            _buildServiceTag('자유입출금'),
+                            const SizedBox(width: 8),
+                            _buildServiceTag('온라인 뱅킹'),
                           ],
                         ),
-                        SizedBox(height: 24),
+                        const SizedBox(height: 24),
 
-                        // 카드 이미지
+                        // 계좌 이미지
                         Container(
                           width: 200,
                           height: 120,
                           decoration: BoxDecoration(
-                            color: Colors.lightBlue[100],
+                            color: Colors.blue[50],
                             borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: Colors.blue[200]!),
                           ),
-                          child: Center(
-                            child: Icon(
-                              Icons.credit_card,
-                              size: 50,
-                              color: Colors.blue[300],
-                            ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.account_balance,
+                                size: 40,
+                                color: Colors.blue[600],
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                '수시입출금통장',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.blue[600],
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                        SizedBox(height: 20),
+                        const SizedBox(height: 20),
 
-                        Text(
-                          '연회비 VISA 없음, LOCAL 없음',
+                        const Text(
+                          '연회비 없음, 온라인뱅킹 가능',
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
                             color: Colors.black87,
                           ),
                         ),
-                        SizedBox(height: 8),
+                        const SizedBox(height: 8),
                         Text(
-                          '가족카드 불가, 후불교통 가능',
+                          '언제든 자유롭게 입출금 가능, 인터넷뱅킹 가능',
                           style: TextStyle(
                             fontSize: 14,
                             color: Colors.grey[600],
                           ),
                         ),
-                        SizedBox(height: 20),
+                        const SizedBox(height: 20),
 
-                        // 신청하기 버튼
+                        // 혜택 정보
                         Container(
                           width: double.infinity,
-                          padding: EdgeInsets.symmetric(vertical: 12),
+                          padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
                             color: Colors.green[50],
                             borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: Colors.green[200]!),
                           ),
-                          child: Center(
-                            child: Text(
-                              '신청하기',
-                              style: TextStyle(
-                                color: Colors.green[700],
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
+                          child: Column(
+                            children: [
+                              Text(
+                                '계좌 개설 혜택',
+                                style: TextStyle(
+                                  color: Colors.green[700],
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
-                            ),
+                              const SizedBox(height: 8),
+                              Text(
+                                '• 계좌 개설 후 30일간 타행 이체 수수료 면제\n• 모바일뱅킹 이용료 3개월 면제',
+                                style: TextStyle(
+                                  color: Colors.green[700],
+                                  fontSize: 14,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ],
                           ),
                         ),
                       ],
                     ),
                   ),
 
-                  SizedBox(height: 32),
+                  const SizedBox(height: 32),
 
                   // 약관 동의 섹션
                   Container(
-                    padding: EdgeInsets.all(20),
+                    padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(12),
@@ -150,7 +179,7 @@ class _TermsScreenState extends State<TermsScreen> {
                         BoxShadow(
                           color: Colors.black.withOpacity(0.05),
                           blurRadius: 10,
-                          offset: Offset(0, 2),
+                          offset: const Offset(0, 2),
                         ),
                       ],
                     ),
@@ -176,11 +205,11 @@ class _TermsScreenState extends State<TermsScreen> {
                                   borderRadius: BorderRadius.circular(4),
                                 ),
                                 child: _allAgreed
-                                    ? Icon(Icons.check, color: Colors.white, size: 16)
+                                    ? const Icon(Icons.check, color: Colors.white, size: 16)
                                     : null,
                               ),
-                              SizedBox(width: 12),
-                              Text(
+                              const SizedBox(width: 12),
+                              const Text(
                                 '약관 전체동의',
                                 style: TextStyle(
                                   fontSize: 16,
@@ -192,13 +221,13 @@ class _TermsScreenState extends State<TermsScreen> {
                           ),
                         ),
 
-                        SizedBox(height: 20),
+                        const SizedBox(height: 20),
                         Divider(color: Colors.grey[300]),
-                        SizedBox(height: 16),
+                        const SizedBox(height: 16),
 
                         // 개별 약관들
                         _buildTermItem(
-                          '(필수) 개인정보 처리방침',
+                          '(필수) 예금약관',
                           _term1Agreed,
                               (value) {
                             setState(() {
@@ -207,10 +236,10 @@ class _TermsScreenState extends State<TermsScreen> {
                             });
                           },
                         ),
-                        SizedBox(height: 16),
+                        const SizedBox(height: 16),
 
                         _buildTermItem(
-                          '(필수) 신한카드 서비스 이용약관',
+                          '(필수) 개인정보 처리방침',
                           _term2Agreed,
                               (value) {
                             setState(() {
@@ -219,14 +248,26 @@ class _TermsScreenState extends State<TermsScreen> {
                             });
                           },
                         ),
-                        SizedBox(height: 16),
+                        const SizedBox(height: 16),
 
                         _buildTermItem(
-                          '(선택) 마케팅 정보 수신 동의',
+                          '(필수) 금융거래정보 활용 동의',
                           _term3Agreed,
                               (value) {
                             setState(() {
                               _term3Agreed = value;
+                              _updateAllAgreed();
+                            });
+                          },
+                        ),
+                        const SizedBox(height: 16),
+
+                        _buildTermItem(
+                          '(선택) 마케팅 정보 수신 동의',
+                          _term4Agreed,
+                              (value) {
+                            setState(() {
+                              _term4Agreed = value;
                               _updateAllAgreed();
                             });
                           },
@@ -238,28 +279,28 @@ class _TermsScreenState extends State<TermsScreen> {
               ),
             ),
           ),
-          // 하단 신청하기 버튼
+          // 하단 계속하기 버튼
           Container(
-            color: Color(0xFFF5F5F5),
-            padding: EdgeInsets.fromLTRB(16, 8, 16, 16),
+            color: const Color(0xFFF5F5F5),
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
             child: SafeArea(
               child: SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: _term1Agreed && _term2Agreed
-                      ? _handleApply
+                  onPressed: _term1Agreed && _term2Agreed && _term3Agreed
+                      ? _handleContinue
                       : null,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: (_term1Agreed && _term2Agreed)
+                    backgroundColor: (_term1Agreed && _term2Agreed && _term3Agreed)
                         ? Colors.blue[600]
                         : Colors.grey[400],
-                    padding: EdgeInsets.symmetric(vertical: 16),
+                    padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
-                  child: Text(
-                    '신청하기',
+                  child: const Text(
+                    '동의하고 계속하기',
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 16,
@@ -277,7 +318,7 @@ class _TermsScreenState extends State<TermsScreen> {
 
   Widget _buildServiceTag(String text) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
         color: Colors.blue[50],
         borderRadius: BorderRadius.circular(12),
@@ -309,15 +350,15 @@ class _TermsScreenState extends State<TermsScreen> {
               borderRadius: BorderRadius.circular(3),
             ),
             child: isChecked
-                ? Icon(Icons.check, color: Colors.white, size: 14)
+                ? const Icon(Icons.check, color: Colors.white, size: 14)
                 : null,
           ),
         ),
-        SizedBox(width: 12),
+        const SizedBox(width: 12),
         Expanded(
           child: Text(
             title,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 14,
               color: Colors.black87,
             ),
@@ -331,132 +372,16 @@ class _TermsScreenState extends State<TermsScreen> {
       ],
     );
   }
-  Future<void> _handleApply() async {
-    final prefs = await SharedPreferences.getInstance();
-    final isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
 
-    if (isLoggedIn) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('로그인완료')),
-      );
-
-      _showLoginDialog(context);
-    } else {
-      _showLoginDialog(context);
-    }
-  }
-
-  void _showLoginDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return Dialog(
-          backgroundColor: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Padding(
-            padding: EdgeInsets.all(24),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  '로그인 안내',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black87,
-                  ),
-                ),
-                SizedBox(height: 16),
-                Text(
-                  '로그인이 필요한 메뉴입니다.',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.black87,
-                  ),
-                ),
-                SizedBox(height: 8),
-                GestureDetector(
-                  onTap: () {
-                    // 로그인 페이지로 이동하는 로직
-                    Navigator.of(context).pop();
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => LoginScreen(),
-                      ),
-                    );
-                  },
-                  child: Text(
-                    '로그인 하시겠어요?',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.blue[600],
-                      decoration: TextDecoration.underline,
-                    ),
-                  ),
-                ),
-                SizedBox(height: 24),
-                Row(
-                  children: [
-                    Expanded(
-                      child: TextButton(
-                        onPressed: () => Navigator.of(context).pop(),
-                        style: TextButton.styleFrom(
-                          padding: EdgeInsets.symmetric(vertical: 12),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            side: BorderSide(color: Colors.grey[300]!),
-                          ),
-                        ),
-                        child: Text(
-                          '아니요',
-                          style: TextStyle(
-                            color: Colors.black87,
-                            fontSize: 16,
-                          ),
-                        ),
-                      ),
-                    ),
-                    SizedBox(width: 12),
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => LoginScreen(),
-                            ),
-                          );
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blue[600],
-                          padding: EdgeInsets.symmetric(vertical: 12),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                        child: Text(
-                          '로그인하기',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        );
-      },
+  void _handleContinue() {
+    // 약관 동의 완료 후 계좌 개설 정보 입력 화면으로 이동
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => AccountCreationScreen(
+          imagePath: widget.imagePath,
+        ),
+      ),
     );
   }
 }
