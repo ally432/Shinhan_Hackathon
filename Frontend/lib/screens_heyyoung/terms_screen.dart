@@ -337,10 +337,6 @@ class _TermsScreenState extends State<TermsScreen> {
 
     if (isLoggedIn) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('로그인완료')),
-      );
-
       _showLoginDialog(context);
     } else {
       _showLoginDialog(context);

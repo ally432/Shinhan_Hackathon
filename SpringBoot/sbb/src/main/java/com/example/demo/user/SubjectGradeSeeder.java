@@ -11,7 +11,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Profile("seed")
 public class SubjectGradeSeeder {
 
-    // 과목 풀 (원하면 추가/수정하세요)
     private static final List<String> SUBJECT_POOL = List.of(
         "자료구조", "운영체제", "알고리즘", "데이터베이스", "컴퓨터구조",
         "네트워크", "웹프로그래밍", "소프트웨어공학", "인공지능개론",
