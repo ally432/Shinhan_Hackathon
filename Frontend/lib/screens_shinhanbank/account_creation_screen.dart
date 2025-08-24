@@ -346,36 +346,54 @@ class _AccountCreationScreenState extends State<AccountCreationScreen> {
   }
 
   Future<void> _createAccount() async {
-    if (!_formKey.currentState!.validate()) {
-      return;
-    }
+    if (!_formKey.currentState!.validate()) return;
 
-    setState(() {
-      _isLoading = true;
-    });
-
+    setState(() => _isLoading = true);
     try {
-      await Future.delayed(const Duration(seconds: 2));
-
+      // 1) 로그인 때 저장해둔 userKey 꺼내기
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setBool('hasSavingsAccount', true);
-      // 페이크 계좌 번호 저장
-      await prefs.setString('accountNumber', '110-123-456789');
+      final userKey = prefs.getString('userKey') ?? '';
+      if (userKey.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('로그인 정보가 없습니다. 다시 로그인해주세요.')),
+        );
+        return;
+      }
+
+      // 2) 서버로 userKey만 전송
+      final url = Uri.parse('$baseUrl/deposit/open');
+      final res = await http
+          .post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'userKey': userKey}),
+      )
+          .timeout(const Duration(seconds: 10));
 
       if (!mounted) return;
 
-      _showSuccessDialog();
+      if (res.statusCode == 200) {
+        // 서버가 내려주는 응답 형식에 따라 파싱
+        final body = res.body; // 현재 컨트롤러는 String을 그대로 반환
+        // TODO: OpenAPI가 JSON을 주는 경우엔 jsonDecode 후 accountNumber 추출
 
+        // 임시: 성공으로 보고 로컬 표시/다음 화면 이동
+        await prefs.setBool('hasSavingsAccount', true);
+        await prefs.setString('accountNumber', '신규계좌-서버응답에서-파싱'); // TODO: 실제 값 반영
+
+        _showSuccessDialog();
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('계좌 개설 실패: ${res.statusCode}')),
+        );
+      }
     } catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('계좌 개설 중 오류가 발생했습니다: $e')),
+        SnackBar(content: Text('네트워크 오류가 발생했습니다: $e')),
       );
     } finally {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 

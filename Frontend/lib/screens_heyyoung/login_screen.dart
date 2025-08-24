@@ -18,6 +18,21 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _passwordController = TextEditingController();
   static const String baseUrl = 'http://10.0.2.2:8080';
   bool _autoLogin = false;
+  bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _forceLogoutOnColdStart();
+  }
+
+  Future<void> _forceLogoutOnColdStart() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('isLoggedIn');
+    await prefs.remove('userId');
+    await prefs.remove('userKey');
+    await prefs.remove('autoLogin');
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -135,50 +150,114 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _handleLogin() async {
-    if (_emailController.text.isEmpty) {
+    final userId = _emailController.text.trim();
+    if (userId.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('이메일을 입력해주세요.')),
+        const SnackBar(content: Text('아이디를 입력해주세요.')),
       );
       return;
     }
 
-    // 로그인 처리 (딜레이 추가)
-    await Future.delayed(const Duration(milliseconds: 500));
+    setState(() => _isLoading = true);
+    try {
+      final url = Uri.parse('$baseUrl/auth/login');
+      final res = await http
+          .post(url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'userId': userId}),
+      )
+          .timeout(const Duration(seconds: 5));
 
-    if (!mounted) return;
+      if (!mounted) return;
 
-    // 로그인 성공 메시지
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('로그인 되었습니다.')),
-    );
+      if (res.statusCode == 200) {
+        final data = jsonDecode(res.body) as Map<String, dynamic>;
+        final userKey = (data['userKey'] ?? '') as String;
 
-    // 사용자 정보 저장
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('isLoggedIn', true);
-    await prefs.setString('userId', _emailController.text.trim());
+        // (방어 코드) 혹시라도 비어있으면 오류 처리
+        if (userKey.isEmpty) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('로그인 응답에 userKey가 없습니다.')),
+          );
+          return;
+        }
 
-    // 수시입출금 계좌 확인
-    await _checkSavingsAccount();
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setBool('isLoggedIn', true);
+        await prefs.setString('userKey', userKey);     // userKey만 저장
+        await prefs.setBool('autoLogin', _autoLogin);
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('로그인 되었습니다.')),
+        );
+
+        await _checkSavingsAccount(); // 이후 흐름
+      } else if (res.statusCode == 401) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('아이디가 존재하지 않습니다.')),
+        );
+      } else if (res.statusCode == 400) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('요청 형식이 올바르지 않습니다.')),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('로그인 실패: ${res.statusCode}')),
+        );
+      }
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('네트워크 오류가 발생했습니다.')),
+      );
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
   }
 
   Future<void> _checkSavingsAccount() async {
-    // 테스트를 위해 수시입출금 계좌가 없다고 가정
-    // 실제로는 서버에서 계좌 정보를 확인해야 함
-    await Future.delayed(const Duration(milliseconds: 300));
+    final prefs = await SharedPreferences.getInstance();
+    final userKey = prefs.getString('userKey') ?? '';
+    final uri = Uri.parse('$baseUrl/deposit/findOpenDeposit')
+        .replace(queryParameters: {'userKey': userKey});
+    final res = await http.get(uri, headers: {'Accept': 'application/json'});
 
-    bool hasSavingsAccount = false; // 테스트용: 항상 false로 설정
+    try {
+      if (!mounted) return;
 
-    if (!mounted) return;
+      if (res.statusCode == 200) {
+        final data = jsonDecode(res.body) as Map<String, dynamic>;
+        final rec = (data['REC'] as List?) ?? const [];
+        final hasSavingsAccount = rec.isNotEmpty;
 
-    if (hasSavingsAccount) {
-      // 계좌가 있으면 바로 계좌 선택 화면으로
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (context) => const AccountSelectionScreen()),
-            (Route<dynamic> route) => false,
+        if (hasSavingsAccount) {
+          final first = (rec.first as Map?) ?? const {};
+          final accountNo = (first['accountNo'] ?? '').toString();
+
+          await prefs.setBool('hasSavingsAccount', true);
+          if (accountNo.isNotEmpty) {
+            await prefs.setString('accountNumber', accountNo);
+          }
+
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (_) => const AccountSelectionScreen()),
+                (route) => false,
+          );
+        } else {
+          _showAccountCreationDialog();
+        }
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('계좌 조회 실패: ${res.statusCode}')),
+        );
+        _showAccountCreationDialog();
+      }
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('네트워크 오류: $e')),
       );
-    } else {
-      // 계좌가 없으면 계좌 개설 안내 다이얼로그 표시
       _showAccountCreationDialog();
     }
   }
@@ -241,29 +320,33 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  /* 실제 서버 연동 시 사용할 코드
+  /* 실제 서버 연동 시 사용할 코드*/
   Future<bool> _checkSavingsAccountFromServer() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      final userId = prefs.getString('userId') ?? '';
+      final userKey = prefs.getString('userKey') ?? '';
+
+      if (userKey.isEmpty) return false;
 
       final url = Uri.parse('$baseUrl/accounts/check-savings');
       final headers = {'Content-Type': 'application/json'};
-      final body = jsonEncode({'userId': userId});
+      final body = jsonEncode({'userKey': userKey});
 
       final res = await http.post(url, headers: headers, body: body)
           .timeout(const Duration(seconds: 5));
 
       if (res.statusCode == 200) {
-        final data = jsonDecode(res.body);
-        return data['hasSavingsAccount'] ?? false;
+        final data = jsonDecode(res.body) as Map<String, dynamic>;
+        return (data['hasSavingsAccount'] ?? false) as bool;
       }
       return false;
-    } catch (e) {
+    } catch (_) {
       return false;
     }
   }
-  */
+
+
+
 
   @override
   void dispose() {

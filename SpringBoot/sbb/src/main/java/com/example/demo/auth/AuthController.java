@@ -29,7 +29,7 @@ public class AuthController {
      }
 
      UserInfo u = opt.get();
-     return ResponseEntity.ok(new LoginSuccess(u.getUserId(), u.getUsername()));
+     return ResponseEntity.ok(new LoginSuccess(u.getUserId(), u.getUsername(), u.getUserKey()));
  }
 
  @Data
@@ -41,6 +41,7 @@ public class AuthController {
  public static class LoginSuccess {
      private final String userId;
      private final String username;
+     private final String userKey;
  }
 
  @Data
