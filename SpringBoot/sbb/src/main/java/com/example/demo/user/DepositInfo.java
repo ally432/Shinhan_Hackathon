@@ -21,18 +21,13 @@ public class DepositInfo {
 
     @Id
     @Column(length = 16, nullable = false)
-    private String accountNo;   // PK: 계좌 번호
+    private String accountNo;
 
     @Column(length = 60, nullable = false)
-    private String userKey;     // UserInfo와 매핑되는 사용자 키
+    private String userKey;
 
     @ManyToOne
-    @JoinColumn(
-        name = "userKey",
-        referencedColumnName = "userKey",
-        insertable = false,
-        updatable = false
-    )
+    @JoinColumn(name = "userKey", referencedColumnName = "userKey", insertable = false, updatable = false)
     private UserInfo userInfo;
 
     @Column(length = 3, nullable = false)
@@ -59,13 +54,17 @@ public class DepositInfo {
     @Column(nullable = false)
     private Double interestRate;
 
-    // 계좌 개설/만기일 (YYYYMMDD 형태, 길이=8)
     @Column(length = 8, nullable = false)
     private String accountCreateDate;
 
     @Column(length = 8, nullable = false)
     private String accountExpiryDate;
-    
+
+    // ✅ 기존 goalScore → goalScore1, goalScore2 로 분리
     @Column(length = 3, nullable = false)
-    private String goalScore;
+    private String goalScore1;
+
+    @Column(length = 3, nullable = false)
+    private String goalScore2;
 }
+
