@@ -320,34 +320,6 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  /* 실제 서버 연동 시 사용할 코드*/
-  Future<bool> _checkSavingsAccountFromServer() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final userKey = prefs.getString('userKey') ?? '';
-
-      if (userKey.isEmpty) return false;
-
-      final url = Uri.parse('$baseUrl/accounts/check-savings');
-      final headers = {'Content-Type': 'application/json'};
-      final body = jsonEncode({'userKey': userKey});
-
-      final res = await http.post(url, headers: headers, body: body)
-          .timeout(const Duration(seconds: 5));
-
-      if (res.statusCode == 200) {
-        final data = jsonDecode(res.body) as Map<String, dynamic>;
-        return (data['hasSavingsAccount'] ?? false) as bool;
-      }
-      return false;
-    } catch (_) {
-      return false;
-    }
-  }
-
-
-
-
   @override
   void dispose() {
     _emailController.dispose();
