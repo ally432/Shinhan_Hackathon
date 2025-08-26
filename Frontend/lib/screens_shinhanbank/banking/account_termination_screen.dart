@@ -16,7 +16,7 @@ class AccountTerminationScreen extends StatelessWidget {
 
     return StepLayout(
       title: '계좌 해지',
-      nextButtonText: '진짜 해지',
+      nextButtonText: '해지',
       onNext: () {
         Navigator.push(context, MaterialPageRoute(builder: (context) => TransferFundsScreen(amount: finalAmount)));
       },

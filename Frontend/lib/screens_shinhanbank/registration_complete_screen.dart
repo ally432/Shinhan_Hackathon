@@ -7,7 +7,6 @@ class RegistrationCompleteScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[100],
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(24.0),
@@ -18,7 +17,7 @@ class RegistrationCompleteScreen extends StatelessWidget {
               const Icon(Icons.check_circle_outline, color: Colors.blue, size: 80),
               const SizedBox(height: 24),
               const Text(
-                '회원가입 및\n계좌 개설이 완료되었습니다!',
+                '예금 가입이\n완료되었습니다!', // 텍스트 수정
                 style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, height: 1.4),
                 textAlign: TextAlign.center,
               ),
@@ -33,7 +32,6 @@ class RegistrationCompleteScreen extends StatelessWidget {
                 onPressed: () {
                   Navigator.pushAndRemoveUntil(
                     context,
-                    // 2. 목적지를 HomeScreen으로 수정
                     MaterialPageRoute(builder: (context) => const HomeScreen()),
                         (Route<dynamic> route) => false,
                   );

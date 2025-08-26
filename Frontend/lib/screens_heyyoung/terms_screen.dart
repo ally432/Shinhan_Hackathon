@@ -334,7 +334,8 @@ class _TermsScreenState extends State<TermsScreen> {
   Future<void> _handleApply() async {
     final prefs = await SharedPreferences.getInstance();
     final isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
-
+    // 08.21 신청하기 버튼을 눌러서 step1~~ 회원가입 또는 로그인 버튼 눌렀을 때 다음 화면되는거 확인하기
+    // 아래 문구는 실제 진짜 로그인이 완료되었을 때 뜨도록
     if (isLoggedIn) {
       if (!mounted) return;
       _showLoginDialog(context);
@@ -342,6 +343,7 @@ class _TermsScreenState extends State<TermsScreen> {
       _showLoginDialog(context);
     }
   }
+  //
 
   void _showLoginDialog(BuildContext context) {
     showDialog(
