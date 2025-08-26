@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:Frontend/screens_shinhanbank/step4_school_auth_screen.dart';
+import 'package:Frontend/screens_shinhanbank/step2_id_photo_screen.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
@@ -36,6 +36,28 @@ class _AccountSelectionScreenState extends State<AccountSelectionScreen> {
     super.initState();
     _loadAccountFromServer(); // 서버에서 바로 읽기
   }
+
+/*
+  ///======테스트=======//
+  Future<void> _loadAccountFromServer() async {
+    // 1. 실제 네트워크 통신처럼 보이도록 잠시 기다립니다.
+    await Future.delayed(const Duration(seconds: 1));
+    if (!mounted) return;
+
+    // 2. 보여주고 싶은 가짜 계좌 정보를 만듭니다.
+    const mockAccountNumber = '110-500-123456';
+    const mockBalance = 500000;
+
+    // 3. API 호출 성공 & 계좌가 있는 상태로 강제 설정합니다.
+    setState(() {
+      _loading = false;
+      _hasSavingsAccount = true;
+      _accountNumber = mockAccountNumber;
+      _accountBalance = mockBalance;
+      _selectedAccount = mockAccountNumber; // 기본으로 선택된 상태
+      _error = null;
+    });*/
+
 
 
   Future<void> _checkAccountStatus() async {
@@ -154,7 +176,7 @@ class _AccountSelectionScreenState extends State<AccountSelectionScreen> {
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  '3/4',
+                  '1/4',
                   style: TextStyle(
                     fontSize: 16,
                     color: Colors.grey[600],
@@ -402,7 +424,7 @@ class _AccountSelectionScreenState extends State<AccountSelectionScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => const Step4SchoolAuthScreen(),
+        builder: (context) => const Step2IdPhotoScreen(),
       ),
     );
   }

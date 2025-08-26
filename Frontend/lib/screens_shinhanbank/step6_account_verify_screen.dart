@@ -1,10 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:Frontend/screens_shinhanbank/step7_auth_confirm_screen.dart';
 import 'package:Frontend/widgets/step_layout.dart';
-import 'package:flutter/services.dart';
-import 'dart:convert';
-import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
 
 class Step6AccountVerifyScreen extends StatefulWidget {
   const Step6AccountVerifyScreen({super.key});
@@ -14,12 +10,10 @@ class Step6AccountVerifyScreen extends StatefulWidget {
 }
 
 class _Step6AccountVerifyScreenState extends State<Step6AccountVerifyScreen> {
-  static const String baseUrl = 'http://10.0.2.2:8080';
   final _accountController = TextEditingController();
   bool _isAccountVerified = false;
   bool _isLoading = false;
-  bool _isVerifyButtonEnabled = false;
-  static const int kAccountNoLen = 16;
+  bool _isVerifyButtonEnabled = false; // '확인' 버튼 활성화 상태
 
   @override
   void initState() {
@@ -27,71 +21,29 @@ class _Step6AccountVerifyScreenState extends State<Step6AccountVerifyScreen> {
     _accountController.addListener(_validateAccountInput);
   }
 
+  // 계좌번호 입력 감지
   void _validateAccountInput() {
-    final txt = _accountController.text.trim();
-    final ok = txt.length == kAccountNoLen && int.tryParse(txt) != null;
-    if (ok != _isVerifyButtonEnabled) {
-      setState(() => _isVerifyButtonEnabled = ok);
+    // 숫자만 16자리일 때 '확인' 버튼 활성화
+    final bool isInputValid = _accountController.text.length == 16 && int.tryParse(_accountController.text) != null;
+    if (isInputValid != _isVerifyButtonEnabled) {
+      setState(() {
+        _isVerifyButtonEnabled = isInputValid;
+      });
     }
   }
-
 
   // '확인' 버튼 눌렀을 때
-  Future<void> _verifyAccount() async {
+  void _verifyAccount() async {
     setState(() => _isLoading = true);
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final userKey = prefs.getString('userKey') ?? '';
-      final accountNo = _accountController.text.trim();
-
-      if (userKey.isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('로그인 정보가 없습니다. 다시 로그인해주세요.')),
-        );
-        return;
-      }
-
-      final res = await http.post(
-        Uri.parse('$baseUrl/deposit/findOneOpenDeposit'),
-        headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
-        body: jsonEncode({'userKey': userKey, 'accountNo': accountNo}),
-      ).timeout(const Duration(seconds: 8));
-
-      if (!mounted) return;
-
-      if (res.statusCode == 200) {
-        final data = jsonDecode(res.body);
-        final header = (data['Header'] as Map?) ?? {};
-        final code = header['responseCode']?.toString();
-
-        final rec = data['REC'];
-        final hasRec = (rec is Map && rec.isNotEmpty) || (rec is List && rec.isNotEmpty);
-
-        if (code == 'H0000' && hasRec) {
-          setState(() => _isAccountVerified = true);
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('✅ 계좌가 확인되었습니다.')),
-          );
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('❌ 계좌 확인에 실패했습니다.')),
-          );
-        }
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('검증 실패: ${res.statusCode}')),
-        );
-      }
-    } catch (e) {
-      if (!mounted) return;
+    await Future.delayed(const Duration(seconds: 1));
+    setState(() {
+      _isLoading = false;
+      _isAccountVerified = true;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('네트워크 오류: $e')),
+        const SnackBar(content: Text('✅ 계좌가 확인되었습니다.')),
       );
-    } finally {
-      if (mounted) setState(() => _isLoading = false);
-    }
+    });
   }
-
 
   void _showVideoCallDialog() {
     showDialog(
@@ -134,19 +86,14 @@ class _Step6AccountVerifyScreenState extends State<Step6AccountVerifyScreen> {
                 child: TextField(
                   controller: _accountController,
                   enabled: !_isAccountVerified,
-                  keyboardType: TextInputType.number,
-                  maxLength: kAccountNoLen,
-                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                   decoration: InputDecoration(
-                    hintText: "'-' 없이 숫자 $kAccountNoLen자리 입력",
+                    hintText: "'-' 없이 숫자 16자리 입력",
                     filled: true,
                     fillColor: Colors.white,
-                    counterText: '',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide.none,
-                    ),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
                   ),
+                  keyboardType: TextInputType.number,
+                  maxLength: 16, // 12자리 제한
                 ),
               ),
               const SizedBox(width: 8),

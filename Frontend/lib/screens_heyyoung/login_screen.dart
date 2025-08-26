@@ -159,6 +159,30 @@ class _LoginScreenState extends State<LoginScreen> {
     }
 
     setState(() => _isLoading = true);
+
+    /*
+    //====테스트 코드====//
+    // 1. 실제 네트워크 통신 대신 잠시 기다립니다.
+    await Future.delayed(const Duration(milliseconds: 500));
+    if (!mounted) return;
+
+    // 2. 로그인 성공 메시지를 보여줍니다.
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('로그인 되었습니다. (테스트 모드)')),
+    );
+
+    // 3. 계좌가 '있는' 상황을 가정하고 바로 '시험 보험 개설' 화면(AccountSelectionScreen)으로 이동합니다.
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (_) => const AccountSelectionScreen()),
+          (route) => false,
+    );
+
+    // 4. 로딩 상태를 해제합니다.
+    if (mounted) setState(() => _isLoading = false);
+    */
+
+    // =====기존 코드=====//
     try {
       final url = Uri.parse('$baseUrl/auth/login');
       final res = await http
@@ -319,6 +343,36 @@ class _LoginScreenState extends State<LoginScreen> {
       },
     );
   }
+
+
+
+  /* 실제 서버 연동 시 사용할 코드*/
+  Future<bool> _checkSavingsAccountFromServer() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final userKey = prefs.getString('userKey') ?? '';
+
+      if (userKey.isEmpty) return false;
+
+      final url = Uri.parse('$baseUrl/accounts/check-savings');
+      final headers = {'Content-Type': 'application/json'};
+      final body = jsonEncode({'userKey': userKey});
+
+      final res = await http.post(url, headers: headers, body: body)
+          .timeout(const Duration(seconds: 5));
+
+      if (res.statusCode == 200) {
+        final data = jsonDecode(res.body) as Map<String, dynamic>;
+        return (data['hasSavingsAccount'] ?? false) as bool;
+      }
+      return false;
+    } catch (_) {
+      return false;
+    }
+  }
+
+
+
 
   @override
   void dispose() {

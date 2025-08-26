@@ -373,9 +373,13 @@ class _AccountCreationScreenState extends State<AccountCreationScreen> {
       if (!mounted) return;
 
       if (res.statusCode == 200) {
-        final body = res.body;
+        // 서버가 내려주는 응답 형식에 따라 파싱
+        final body = res.body; // 현재 컨트롤러는 String을 그대로 반환
+        // TODO: OpenAPI가 JSON을 주는 경우엔 jsonDecode 후 accountNumber 추출
+
+        // 임시: 성공으로 보고 로컬 표시/다음 화면 이동
         await prefs.setBool('hasSavingsAccount', true);
-        await prefs.setString('accountNumber', '신규계좌-서버응답에서-파싱');
+        await prefs.setString('accountNumber', '신규계좌-서버응답에서-파싱'); // TODO: 실제 값 반영
 
         _showSuccessDialog();
       } else {

@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:Frontend/screens_shinhanbank/step4_school_auth_screen.dart';
+import 'package:Frontend/screens_shinhanbank/info_input_screen.dart';
 import 'package:Frontend/widgets/step_layout.dart';
 
 class Step3ConfirmInfoScreen extends StatelessWidget {
@@ -32,7 +32,7 @@ class Step3ConfirmInfoScreen extends StatelessWidget {
         Navigator.push(
             context,
             MaterialPageRoute(
-                builder: (context) => const Step4SchoolAuthScreen()));
+                builder: (context) => const InfoInputScreen()));
       },
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
