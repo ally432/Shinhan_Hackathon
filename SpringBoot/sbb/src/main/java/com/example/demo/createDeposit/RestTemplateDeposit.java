@@ -24,23 +24,28 @@ public class RestTemplateDeposit {
      * 예금 상품 생성 API 호출 (수정된 요청값 적용)
      */
     public String createDepositProduct() {
-        String url = "https://finopenapi.ssafy.io/ssafy/api/v1/edu/demandDeposit/createDemandDeposit";
+        String url = "https://finopenapi.ssafy.io/ssafy/api/v1/edu/deposit/createDepositProduct";
 
         Map<String, Object> header = new HashMap<>();
-        header.put("apiName", "createDemandDeposit");
-        header.put("transmissionDate", "20250819");
-        header.put("transmissionTime", "215700");
+        header.put("apiName", "createDepositProduct");
+        header.put("transmissionDate", "20250826");
+        header.put("transmissionTime", "220700");
         header.put("institutionCode", "00100");
         header.put("fintechAppNo", "001");
-        header.put("apiServiceCode", "createDemandDeposit");
-        header.put("institutionTransactionUniqueNo", "20250819215700123560");
+        header.put("apiServiceCode", "createDepositProduct");
+        header.put("institutionTransactionUniqueNo", "20250826220700123560");
         header.put("apiKey", "a2d9331aee534c1794cf1eafd1bc7a17");
 
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("Header", header);
         requestBody.put("bankCode", "088");
-        requestBody.put("accountName", "쏠편한 입출금통장");
-        requestBody.put("accountDescription", "이체수수료(모바일, 인터넷, 폰뱅킹ARS), 인출수수료 (신한은행CD/ATM), 타행자동이체수수료가 무제한 면제되는 통장");
+        requestBody.put("accountName", "시험보험(test)");
+        requestBody.put("accountDescription", "성적 기반 금융 위로 서비스");
+        requestBody.put("subscriptionPeriod", "2");
+        requestBody.put("minSubscriptionBalance", "500000");
+        requestBody.put("maxSubscriptionBalance", "100000000");
+        requestBody.put("interestRate", "2.05");
+        requestBody.put("rateDescription", "목표달성에 따른 추가 우대 금리 적용(연 최대 2.2%)");
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);

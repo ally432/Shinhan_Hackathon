@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:Frontend/screens_shinhanbank/step6_account_verify_screen.dart';
 import 'package:Frontend/widgets/step_layout.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 
 class Step5GoalSettingScreen extends StatefulWidget {
   const Step5GoalSettingScreen({super.key});
@@ -13,6 +15,14 @@ class _Step5GoalSettingScreenState extends State<Step5GoalSettingScreen> {
   String? _semester1Goal;
   String? _semester2Goal;
   bool _isButtonEnabled = false;
+  static const String kSem1GoalKey = 'goal_sem1';
+  static const String kSem2GoalKey = 'goal_sem2';
+
+  Future<void> _saveGoals() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (_semester1Goal != null) await prefs.setString(kSem1GoalKey, _semester1Goal!);
+    if (_semester2Goal != null) await prefs.setString(kSem2GoalKey, _semester2Goal!);
+  }
 
   final List<String> gradeOptions = ['4.5', '4.3', '4.0', '3.7', '3.5'];
 
@@ -86,8 +96,16 @@ class _Step5GoalSettingScreenState extends State<Step5GoalSettingScreen> {
     return StepLayout(
       title: '목표 설정',
       onNext: _isButtonEnabled
-          ? () => Navigator.push(context, MaterialPageRoute(builder: (context) => const Step6AccountVerifyScreen()))
+          ? () async {
+        await _saveGoals();
+        if (!mounted) return;
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const Step6AccountVerifyScreen()),
+        );
+      }
           : null,
+
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:Frontend/screens_shinhanbank/step4_school_auth_screen.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class InfoInputScreen extends StatefulWidget {
   const InfoInputScreen({super.key});
@@ -21,22 +22,35 @@ class _InfoInputScreenState extends State<InfoInputScreen> {
   String? _selectedTaxType;
   bool _noRecommenderSelected = false;
   bool _isTaxGuideExpanded = false;
+  static const String kSelectedAmountKey = 'depositInitAmount';
+
+  int _parseAmount(String s) {
+    // 숫자만 남기고 파싱(혹시 콤마/공백이 들어와도 안전)
+    final digits = s.replaceAll(RegExp(r'[^0-9]'), '');
+    return int.tryParse(digits) ?? 0;
+  }
+
+  Future<void> _saveSelectedAmount() async {
+    final prefs = await SharedPreferences.getInstance();
+    final amount = _parseAmount(_amountController.text);
+    await prefs.setInt(kSelectedAmountKey, amount);
+  }
+
 
   @override
   void initState() {
     super.initState();
-    // 입력 감지를 위해 리스너 추가
     _recommenderController.addListener(() => setState(() {}));
     _amountController.addListener(() {
-      // 사용자가 직접 입력할 때 버튼 선택 상태를 동기화
-      final amountValue = int.tryParse(_amountController.text);
-      if (amountValue != _selectedAmount) {
+      final v = _parseAmount(_amountController.text);
+      if (v != (_selectedAmount ?? -1)) {
         setState(() {
-          _selectedAmount = amountValue;
+          _selectedAmount = (v > 0) ? v : null;
         });
       }
     });
   }
+
 
   @override
   void dispose() {
@@ -49,15 +63,15 @@ class _InfoInputScreenState extends State<InfoInputScreen> {
   // --- 각 단계의 완료 여부 ---
   bool get _isCurrentStepComplete {
     switch (_currentPage) {
-      case 0: // 금액 설정
-        return _amountController.text.isNotEmpty;
-      case 1: // 기간 설정
+      case 0:
+        return _parseAmount(_amountController.text) > 0; // ← 변경
+      case 1:
         return _selectedPeriod != null;
-      case 2: // 과세 유형
+      case 2:
         return _selectedTaxType != null;
-      case 3: // 권유 직원
+      case 3:
         return _recommenderController.text.isNotEmpty || _noRecommenderSelected;
-      default: // 만기 알림
+      default:
         return true;
     }
   }
@@ -126,13 +140,24 @@ class _InfoInputScreenState extends State<InfoInputScreen> {
             if (_currentPage > 0) const SizedBox(width: 12),
             Expanded(
               child: ElevatedButton(
-                onPressed: _isCurrentStepComplete ? () {
+                onPressed: _isCurrentStepComplete ? () async {
+                  if (_currentPage == 0) {
+                    await _saveSelectedAmount();
+                  }
+
                   if (isLastPage) {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => const Step4SchoolAuthScreen()));
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const Step4SchoolAuthScreen()),
+                    );
                   } else {
-                    _pageController.nextPage(duration: const Duration(milliseconds: 300), curve: Curves.easeIn);
+                    _pageController.nextPage(
+                      duration: const Duration(milliseconds: 300),
+                      curve: Curves.easeIn,
+                    );
                   }
                 } : null,
+
                 style: ElevatedButton.styleFrom(
                   minimumSize: const Size(0, 50),
                   backgroundColor: Colors.blue[800],
