@@ -5,10 +5,11 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.OffsetDateTime;
 
+@com.fasterxml.jackson.annotation.JsonIgnoreProperties(ignoreUnknown = true)
 public class MemberCreateResponse {
     private String userId;
 
-    @JsonProperty("userName")
+    @com.fasterxml.jackson.annotation.JsonAlias({"userName","username"})
     private String username;
 
     private String institutionCode;

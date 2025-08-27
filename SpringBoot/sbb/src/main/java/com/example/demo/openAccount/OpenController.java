@@ -22,6 +22,7 @@ public class OpenController {
     private final RestTemplateOpen openService;
     private final ToDepositOA depositService;
     private final RestTemplateFind findService; // ← 계좌목록 조회용
+    private final GradeBonusService gradeBonusService;
     private final ObjectMapper om = new ObjectMapper();
 
     @PostMapping("/open")
@@ -84,10 +85,16 @@ public class OpenController {
 
         // 4) 자동 입금
         String depRes = depositService.deposit(userKey, accountNo, amount);
+        long bonus = gradeBonusService.applyBonusAndDeposit(userKey, accountNo);
         JsonNode depJson = om.readTree(depRes);
         out.put("autoDepositAmount", amount);
         out.put("autoDepositAccountNo", accountNo);
         out.set("deposit", depJson);
+        out.put("gradeBonusPaid", bonus);
+        out.put("bonusEligible", bonus > 0);
+        if (bonus > 0) {
+            out.put("message", "받을 수 있으면 받습니다.");
+        }
 
         // 5) 반환
         String pretty = om.writerWithDefaultPrettyPrinter().writeValueAsString(out);
