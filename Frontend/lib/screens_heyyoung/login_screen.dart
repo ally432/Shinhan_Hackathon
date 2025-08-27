@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../screens_shinhanbank/home_screen.dart';
 import 'signup_screen.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
@@ -215,7 +216,7 @@ class _LoginScreenState extends State<LoginScreen> {
           const SnackBar(content: Text('로그인 되었습니다.')),
         );
 
-        await _checkSavingsAccount(); // 이후 흐름
+        await _checkProductsAndRoute(); // 이후 흐름
       } else if (res.statusCode == 401) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('아이디가 존재하지 않습니다.')),
@@ -239,51 +240,126 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  Future<void> _checkSavingsAccount() async {
+  Future<void> _checkProductsAndRoute() async {
     final prefs = await SharedPreferences.getInstance();
     final userKey = prefs.getString('userKey') ?? '';
-    final uri = Uri.parse('$baseUrl/deposit/findOpenDeposit')
-        .replace(queryParameters: {'userKey': userKey});
-    final res = await http.get(uri, headers: {'Accept': 'application/json'});
+    if (userKey.isEmpty) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('userKey가 없습니다. 다시 로그인해 주세요.')),
+      );
+      return;
+    }
 
     try {
+      // 두 API 병렬 호출
+      final results = await Future.wait<bool>([
+        _hasDemandDeposit(userKey),  // 수시입출금 계좌 존재 여부
+        _hasSavingsDeposit(userKey), // 예금(시험보험 등) 존재 여부
+      ]);
+
+      final hasDemand = results[0];
+      final hasSavings = results[1];
+
       if (!mounted) return;
 
-      if (res.statusCode == 200) {
-        final data = jsonDecode(res.body) as Map<String, dynamic>;
-        final rec = (data['REC'] as List?) ?? const [];
-        final hasSavingsAccount = rec.isNotEmpty;
-
-        if (hasSavingsAccount) {
-          final first = (rec.first as Map?) ?? const {};
-          final accountNo = (first['accountNo'] ?? '').toString();
-
-          await prefs.setBool('hasSavingsAccount', true);
-          if (accountNo.isNotEmpty) {
-            await prefs.setString('accountNumber', accountNo);
-          }
-
-          Navigator.pushAndRemoveUntil(
-            context,
-            MaterialPageRoute(builder: (_) => const AccountSelectionScreen()),
-                (route) => false,
-          );
-        } else {
-          _showAccountCreationDialog();
-        }
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('계좌 조회 실패: ${res.statusCode}')),
-        );
+      if (!hasDemand) {
+        // 수시입출금 계좌가 없으면 → 개설 유도 (가입 페이지로 이동하는 기존 다이얼로그)
         _showAccountCreationDialog();
+        return;
       }
+
+      if (hasDemand && hasSavings) {
+        // 둘 다 존재 → 팝업만 띄우고, 가입(개설) 페이지로는 절대 안 감
+        await showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (_) => AlertDialog(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            title: const Text('알림', style: TextStyle(fontWeight: FontWeight.bold)),
+            content: const Text('수시입출금 계좌와 예금이 이미 모두 존재합니다.'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('확인'),
+              ),
+            ],
+          ),
+        );
+
+        // 확인 후엔 홈/선택 화면 등으로만 이동 (가입 페이지 X)
+        if (!mounted) return;
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (_) => const HomeScreen()),
+              (route) => false,
+        );
+        return;
+      }
+
+      // 수시입출금만 있고 예금은 없을 때: 가입페이지로 가지 말고 사용 가능한 화면으로 이동
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (_) => const AccountSelectionScreen()),
+            (route) => false,
+      );
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('네트워크 오류: $e')),
+        SnackBar(content: Text('계좌 확인 중 오류: $e')),
       );
-      _showAccountCreationDialog();
+      // 오류 시에도 가입(개설) 페이지로는 가지 않도록, 안전하게 선택 화면으로 보냄
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (_) => const AccountSelectionScreen()),
+            (route) => false,
+      );
     }
+  }
+
+  /// 수시입출금 계좌 존재 여부 확인
+  Future<bool> _hasDemandDeposit(String userKey) async {
+    final uri = Uri.parse('$baseUrl/deposit/findOpenDeposit')
+        .replace(queryParameters: {'userKey': userKey});
+
+    final res = await http
+        .get(uri, headers: {'Accept': 'application/json'})
+        .timeout(const Duration(seconds: 7));
+
+    if (res.statusCode != 200) return false;
+
+    final root = jsonDecode(res.body);
+    // 백엔드/외부 응답이 REC가 객체일 수도, 리스트일 수도 있어서 모두 처리
+    final rec = root['REC'];
+    if (rec is List) {
+      return rec.isNotEmpty;
+    } else if (rec is Map) {
+      final list = rec['list'];
+      return list is List && list.isNotEmpty;
+    }
+    return false;
+  }
+
+  /// 예금(시험보험 등) 존재 여부 확인
+  Future<bool> _hasSavingsDeposit(String userKey) async {
+    final uri = Uri.parse('$baseUrl/deposit/findSavingsDeposit')
+        .replace(queryParameters: {'userKey': userKey});
+
+    final res = await http
+        .get(uri, headers: {'Accept': 'application/json'})
+        .timeout(const Duration(seconds: 7));
+
+    if (res.statusCode != 200) return false;
+
+    final root = jsonDecode(res.body);
+    final recObj = (root['REC'] as Map?) ?? const {};
+    final list = (recObj['list'] as List?) ?? const [];
+
+    // “시험보험” 특정 상품만 확인하려면 아래 any 조건을 사용
+    // return list.any((e) => e is Map && (e['accountName']?.toString() ?? '') == '시험보험');
+
+    // 예금이 하나라도 있으면 true
+    return list.isNotEmpty;
   }
 
   void _showAccountCreationDialog() {

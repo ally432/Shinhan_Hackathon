@@ -4,34 +4,31 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.List;
-
 @Entity
 @Table(
-    name = "grade_record",
-    uniqueConstraints = {
-        @UniqueConstraint(name = "uk_grade_user_term", columnNames = {"userId", "year", "semester"})
-    }
+ name = "grade_record",
+ uniqueConstraints = {
+     @UniqueConstraint(name = "uk_grade_user_term", columnNames = {"userId", "year", "semester"})
+ }
 )
 @Getter @Setter
 public class GradeRecord {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+ @Id
+ @GeneratedValue(strategy = GenerationType.IDENTITY)
+ private Long id;
 
-    @Column(length = 40, nullable = false)
-    private String userId;
+ @Column(length = 40, nullable = false)
+ private String userId;
 
-    private Integer totalCredits;
-    private Double totalGpa;
+ private Integer totalCredits;   // 총 이수학점(임의값)
+ private Double totalGpa;        // GPA (0.0 ~ 4.5 랜덤)
 
-    private Integer year;
-    private Integer semester;
+ private Integer year;           // 2024, 2025
+ private Integer semester;       // 1, 2
 
-    @Column(length = 10)
-    private String type;
-
-    @OneToMany(mappedBy = "gradeRecord", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<SubjectGrade> subjects;
+ @Column(length = 10)
+ private String type;            // 예: "전공"
+ 
+ // 🔥 SubjectGrade 제거에 따라 @OneToMany subjects 필드 삭제
 }

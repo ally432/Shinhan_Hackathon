@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:Frontend/models/account_model.dart';
 import 'package:Frontend/screens_shinhanbank/banking/account_termination_screen.dart';
+import 'package:Frontend/screens_shinhanbank/banking/interest_calc_screen.dart';
 
 class AccountManagementScreen extends StatelessWidget {
   final Account account;
@@ -104,15 +105,30 @@ class AccountManagementScreen extends StatelessWidget {
         if (title == '계좌 해지') {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => AccountTerminationScreen(account: account)),
+            MaterialPageRoute(
+              builder: (context) => AccountTerminationScreen(account: account),
+            ),
           );
-        } else {
-          showDialog(
-            context: context,
-            builder: (context) => AlertDialog(
-              title: Text(title),
-              content: const Text('해당 기능을 실행합니다.'),
-              actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('확인'))],
+        } else if (title == '예금 만기 이자 조회') {
+          // ✅ 만기 이자 조회 페이지로 이동
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => InterestCalcScreen(
+                account: account,
+                initialMode: InterestMode.maturity,
+              ),
+            ),
+          );
+        } else if (title == '중도 해지 이자 조회') {
+          // ✅ 중도 해지 이자 조회 페이지로 이동
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => InterestCalcScreen(
+                account: account,
+                initialMode: InterestMode.early,
+              ),
             ),
           );
         }
@@ -120,4 +136,5 @@ class AccountManagementScreen extends StatelessWidget {
       contentPadding: const EdgeInsets.symmetric(horizontal: 16.0),
     );
   }
+
 }

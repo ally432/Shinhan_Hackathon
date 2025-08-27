@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:Frontend/screens_shinhanbank/registration_complete_screen.dart';
 import 'package:Frontend/widgets/step_layout.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
+
 
 class Step8TermsAgreeScreen extends StatefulWidget {
   const Step8TermsAgreeScreen({super.key});
@@ -10,6 +14,9 @@ class Step8TermsAgreeScreen extends StatefulWidget {
 }
 
 class _Step8TermsAgreeScreenState extends State<Step8TermsAgreeScreen> {
+  static const String baseUrl = 'http://10.0.2.2:8080'; // ← 추가
+  bool _submitting = false;
+
   bool _allAgreed = false;
   final Map<String, bool> _agreements = {
     '예금거래기본약관': false,
@@ -59,15 +66,8 @@ class _Step8TermsAgreeScreenState extends State<Step8TermsAgreeScreen> {
   Widget build(BuildContext context) {
     return StepLayout(
       title: '약관 동의',
-      nextButtonText: '완료',
-      onNext: _isButtonEnabled
-          ? () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const RegistrationCompleteScreen()),
-        );
-      }
-          : null,
+      nextButtonText: _submitting ? '요청 중...' : '완료',
+      onNext: (_isButtonEnabled && !_submitting) ? _submitAndNext : null,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -92,6 +92,58 @@ class _Step8TermsAgreeScreenState extends State<Step8TermsAgreeScreen> {
       ),
     );
   }
+
+  Future<void> _submitAndNext() async {
+    setState(() => _submitting = true);
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final userKey = prefs.getString('userKey') ?? '';
+      final selectedAccountNo = prefs.getString('selectedAccountNo') ?? '';
+      final depositInitAmount = prefs.getInt('depositInitAmount') ?? 0;
+
+      if (userKey.isEmpty || selectedAccountNo.isEmpty || depositInitAmount <= 0) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('필수 정보가 없습니다. 이전 단계부터 다시 진행해주세요.')),
+        );
+        return;
+      }
+
+      final res = await http.post(
+        Uri.parse('$baseUrl/deposit/openDeposit'),
+        headers: const {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: jsonEncode({
+          'userKey': userKey,
+          'withdrawalAccountNo': selectedAccountNo,
+          'depositBalance': depositInitAmount.toString(), // 서버가 문자열이면 toString()
+        }),
+      ).timeout(const Duration(seconds: 10));
+
+      if (!mounted) return;
+
+      if (res.statusCode == 200) {
+        // TODO: 필요하면 jsonDecode(res.body) 해서 신규 예금 계좌번호 등 파싱/저장
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const RegistrationCompleteScreen()),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('개설 요청 실패: ${res.statusCode}')),
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('네트워크 오류: $e')),
+      );
+    } finally {
+      if (mounted) setState(() => _submitting = false);
+    }
+  }
+
 
   Widget _buildOverallAgreement() {
     return InkWell(

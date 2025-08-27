@@ -1,97 +1,113 @@
 package com.example.demo.openDeposit;
 
-import java.io.IOException;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.*;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.*;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.DefaultResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
 
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
+
 @Service
+@Slf4j
 public class RestTemplateOpenDeposite {
 
-    private final RestTemplate restTemplate;
+ private final RestTemplate restTemplate;
+ private final ObjectMapper om = new ObjectMapper();
 
-    public RestTemplateOpenDeposite() {
-        this.restTemplate = buildRestTemplate();
-    }
+ // 중복 방지용
+ private static String lastTimeSec = "";
+ private static final String FIXED_SUFFIX = "123492"; // 요구사항 유지
+ private static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("yyyyMMdd");
+ private static final DateTimeFormatter TIME_FMT = DateTimeFormatter.ofPattern("HHmmss");
 
-    private RestTemplate buildRestTemplate() {
-        RestTemplate rt = new RestTemplate();
+ public RestTemplateOpenDeposite() {
+     this.restTemplate = buildRestTemplate();
+ }
 
-        // 에러라도 바디 확인
-        rt.setErrorHandler(new DefaultResponseErrorHandler() {
-            @Override
-            public boolean hasError(ClientHttpResponse response) throws IOException {
-                return false;
-            }
-        });
+ private RestTemplate buildRestTemplate() {
+     RestTemplate rt = new RestTemplate();
+     rt.setErrorHandler(new DefaultResponseErrorHandler() {
+         @Override public boolean hasError(ClientHttpResponse response) throws IOException { return false; }
+     });
+     rt.getInterceptors().add((req, body, ex) -> {
+         System.out.println("[REQ] " + req.getMethod() + " " + req.getURI());
+         req.getHeaders().forEach((k, v) -> System.out.println("  " + k + ": " + v));
+         if (body != null) System.out.println("  body=" + new String(body));
+         ClientHttpResponse res = ex.execute(req, body);
+         System.out.println("[RES] status=" + res.getStatusCode());
+         return res;
+     });
+     return rt;
+ }
 
-        rt.getInterceptors().add((req, body, ex) -> {
-            System.out.println("[REQ] " + req.getMethod() + " " + req.getURI());
-            req.getHeaders().forEach((k, v) -> System.out.println("  " + k + ": " + v));
-            if (body != null) System.out.println("  body=" + new String(body));
-            ClientHttpResponse res = ex.execute(req, body);
-            System.out.println("[RES] status=" + res.getStatusCode());
-            return res;
-        });
+ // 같은 초 중복 방지: 초가 바뀔 때까지 5ms sleep
+ private static synchronized String[] nextIds() {
+     while (true) {
+         LocalDateTime now = LocalDateTime.now();
+         String date = now.format(DATE_FMT);
+         String time = now.format(TIME_FMT);
+         if (!time.equals(lastTimeSec)) {
+             lastTimeSec = time;
+             String instTxnNo = date + time + FIXED_SUFFIX; // 20자리
+             return new String[]{date, time, instTxnNo};
+         }
+         try { Thread.sleep(5); } catch (InterruptedException e) {
+             Thread.currentThread().interrupt();
+             throw new RuntimeException(e);
+         }
+     }
+ }
 
-        return rt;
-    }
+ public String createDepositProduct(
+         String userKey,
+         String withdrawalAccountNo,
+         String depositBalance
+ ) {
+     String url = "https://finopenapi.ssafy.io/ssafy/api/v1/edu/deposit/createDepositAccount";
 
-    /**
-     * 예금(입출금) 계좌 생성 API 호출 - Header + accountTypeUniqueNo 루트 구조
-     */
-    public String createDepositProduct() {
-        String url = "https://finopenapi.ssafy.io/ssafy/api/v1/edu/deposit/createDepositAccount";
+     String[] ids = nextIds();
+     String nowDate = ids[0];
+     String nowTime = ids[1];
+     String instTxnNo = ids[2];
 
-        // 날짜/시간/고유거래번호
-        String nowDate = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
-        String nowTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("HHmmss"));
-        String instTxnNo = nowDate + nowTime + "123492";;
-        // ↑ 고유성 보장 위해 뒤에 랜덤 일부 추가(규격 길이가 정해져 있으면 문서 규칙대로 맞추세요)
+     Map<String, Object> Header = new LinkedHashMap<>();
+     Header.put("apiName", "createDepositAccount");
+     Header.put("transmissionDate", nowDate);
+     Header.put("transmissionTime", nowTime);
+     Header.put("institutionCode", "00100");
+     Header.put("fintechAppNo", "001");
+     Header.put("apiServiceCode", "createDepositAccount");
+     Header.put("institutionTransactionUniqueNo", instTxnNo);
+     Header.put("apiKey", "a2d9331aee534c1794cf1eafd1bc7a17");
+     Header.put("userKey", userKey);
 
-        // ==== JSON Body 구성 ====
-        Map<String, Object> Header = new LinkedHashMap<>(); // 순서 보존(가독 목적)
-        Header.put("apiName", "createDepositAccount");
-        Header.put("transmissionDate", nowDate);
-        Header.put("transmissionTime", nowTime);
-        Header.put("institutionCode", "00100");
-        Header.put("fintechAppNo", "001");
-        Header.put("apiServiceCode", "createDepositAccount");
-        Header.put("institutionTransactionUniqueNo", instTxnNo);
-        Header.put("apiKey", "a2d9331aee534c1794cf1eafd1bc7a17"); // 문서 규정대로 이 위치에 필요
-        Header.put("userKey", "e8a7d57a-8bb7-41d2-ab3d-f03f0cb20ff8");
+     Map<String, Object> payload = new LinkedHashMap<>();
+     payload.put("Header", Header);
+     payload.put("withdrawalAccountNo", withdrawalAccountNo);
+     payload.put("accountTypeUniqueNo", "088-2-5d6bc23e74034b");
+     payload.put("depositBalance", depositBalance);
 
-        Map<String, Object> body = new LinkedHashMap<>();
-        body.put("Header", Header);
-        body.put("withdrawalAccountNo", "0888692626841303");
-        body.put("accountTypeUniqueNo", "088-2-8b8acfbbc60f45");
-        body.put("depositBalance", "80000000");
+     try {
+         log.info("[Outbound -> OpenAPI] payload=\n{}",
+                 om.writerWithDefaultPrettyPrinter().writeValueAsString(payload));
+     } catch (Exception ignore) {}
 
-        // ==== HTTP 헤더 ====
-        HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.setContentType(MediaType.APPLICATION_JSON);
-        httpHeaders.setAccept(List.of(MediaType.APPLICATION_JSON));
+     HttpHeaders httpHeaders = new HttpHeaders();
+     httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+     httpHeaders.setAccept(List.of(MediaType.APPLICATION_JSON));
 
-        // ※ 문서가 HTTP 헤더 인증을 요구하지 않으면 추가하지 마세요.
-        // 요구한다면 아래 중 하나 사용:
-        // httpHeaders.add("X-API-KEY", "a2d9331aee534c1794cf1eafd1bc7a17");
-        // httpHeaders.setBearerAuth("<YOUR_TOKEN>");
+     HttpEntity<Map<String, Object>> entity = new HttpEntity<>(payload, httpHeaders);
+     ResponseEntity<String> response =
+             restTemplate.exchange(url, HttpMethod.POST, entity, String.class);
 
-        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, httpHeaders);
-
-        ResponseEntity<String> response = restTemplate.exchange(
-                url, HttpMethod.POST, entity, String.class
-        );
-
-        System.out.println("HTTP " + response.getStatusCodeValue());
-        System.out.println(response.getBody());
-
-        return response.getBody();
-    }
+     log.info("[Inbound <- OpenAPI] status={}, body={}", response.getStatusCodeValue(), response.getBody());
+     return response.getBody();
+ }
 }
+

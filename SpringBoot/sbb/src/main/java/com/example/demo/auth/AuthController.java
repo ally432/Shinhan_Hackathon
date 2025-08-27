@@ -4,6 +4,8 @@ import com.example.demo.user.UserInfo;
 import com.example.demo.signup.UserInfoRepository;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
