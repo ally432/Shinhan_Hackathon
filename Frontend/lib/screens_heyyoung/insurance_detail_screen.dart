@@ -5,7 +5,7 @@ class InsuranceDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFFF5F5F5), // 메인화면과 동일한 배경색
+      backgroundColor: Color(0xFFF5F5F5),
       appBar: AppBar(
         backgroundColor: Color(0xFFF5F5F5),
         elevation: 0,
@@ -27,7 +27,7 @@ class InsuranceDetailScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // 시험 보험 상품 카드
+                  // 시험 보험
                   Container(
                     width: double.infinity,
                     decoration: BoxDecoration(
@@ -49,7 +49,7 @@ class InsuranceDetailScreen extends StatelessWidget {
                           Row(
                             children: [
                               Icon(
-                                Icons.shield_outlined,
+                                Icons.trending_up,
                                 color: Colors.white,
                                 size: 32,
                               ),
@@ -71,14 +71,6 @@ class InsuranceDetailScreen extends StatelessWidget {
                               color: Colors.white70,
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          SizedBox(height: 20),
-                          Container(
-                            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.2),
-                              borderRadius: BorderRadius.circular(20),
                             ),
                           ),
                         ],
@@ -175,22 +167,6 @@ class InsuranceDetailScreen extends StatelessWidget {
             child: SafeArea(
               child: Row(
                 children: [
-                  Container(
-                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      border: Border.all(color: Colors.blue[600]!),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      '월 4만 8천원',
-                      style: TextStyle(
-                        color: Colors.blue[600],
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
                   SizedBox(width: 12),
                   Expanded(
                     child: GestureDetector(
@@ -215,7 +191,7 @@ class InsuranceDetailScreen extends StatelessWidget {
                         ),
                         child: Center(
                           child: Text(
-                            '보험 가입하기',
+                            '상품 가입하기',
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 16,

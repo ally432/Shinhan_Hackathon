@@ -17,7 +17,6 @@ class _BenefitsScreenState extends State<BenefitsScreen> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        leading: Icon(Icons.arrow_back, color: Colors.black),
         actions: [
           Padding(
             padding: EdgeInsets.only(right: 16),
@@ -28,9 +27,9 @@ class _BenefitsScreenState extends State<BenefitsScreen> {
                 SizedBox(width: 4),
                 Text('2,010', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
                 SizedBox(width: 8),
-                Icon(Icons.access_time, color: Colors.black, size: 20),
+                Icon(Icons.confirmation_num_outlined, color: Colors.black, size: 20),
                 SizedBox(width: 4),
-                Text('3잠', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+                Text('3장', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
               ],
             ),
           ),
@@ -42,7 +41,7 @@ class _BenefitsScreenState extends State<BenefitsScreen> {
           children: [
             // 상단 프로모션 카드들
             Container(
-              height: 250, // 300에서 250으로 줄임
+              height: 250,
               child: PageView(
                 controller: _pageController,
                 onPageChanged: (index) {
@@ -51,7 +50,7 @@ class _BenefitsScreenState extends State<BenefitsScreen> {
                   });
                 },
                 children: [
-                  // 첫 번째 카드 - 시험 보험
+                  // 시험 보험
                   _buildPromotionCard(
                     icon: '💰',
                     title: '시험 보험에 가입하고\n성적이 기대되는 캠퍼스 생활을 해봐요!',
@@ -59,12 +58,13 @@ class _BenefitsScreenState extends State<BenefitsScreen> {
                     backgroundColor: Color(0xFFF0F8FF),
                     onPressed: () => _navigateToInsurance(context),
                   ),
-                  // 두 번째 카드 - 점심값
+                  // 점심값
                   _buildPromotionCard(
                     icon: '🍱',
                     title: '점심값 걱정했다면?\n지금 50% 돌려받으세요',
                     buttonText: '자세히 보기',
-                    backgroundColor: Color(0xFFF8F8FF),
+                    backgroundColor: Color(0xFFF0F8FF),
+                    onPressed: () {},
                   ),
                 ],
               ),
@@ -255,7 +255,7 @@ class _BenefitsScreenState extends State<BenefitsScreen> {
           SizedBox(height: 16),
           SizedBox(
             width: double.infinity,
-            height: 40, // 고정 높이 설정
+            height: 40, 
             child: ElevatedButton(
               onPressed: onPressed,
               style: ElevatedButton.styleFrom(
