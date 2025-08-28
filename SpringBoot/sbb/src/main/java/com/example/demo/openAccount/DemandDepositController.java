@@ -44,7 +44,11 @@ public class DemandDepositController {
                     http.getHeader("User-Agent"), req.getAmount(), cleanAccNo);
 
             // 3) OpenAPI 호출
-            String apiBody = toDepositOA.deposit(req.getUserKey(), cleanAccNo, req.getAmount());
+            String memo = (req.getMemo() == null || req.getMemo().isBlank())
+                    ? "이자"
+                    : req.getMemo();
+
+            String apiBody = toDepositOA.depositWithSummary(req.getUserKey(), cleanAccNo, req.getAmount(), memo);
 
             // 4) 응답 파싱(성공/실패 코드 확인)
             JsonNode root = om.readTree(apiBody);

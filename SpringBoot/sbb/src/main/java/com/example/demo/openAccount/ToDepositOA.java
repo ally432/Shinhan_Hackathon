@@ -58,8 +58,13 @@ public class ToDepositOA {
 
     private record Ids(String date, String time, String instNo) {}
 
-    /** ✅ 입금 호출 */
+    // 기존 그대로 유지
     public String deposit(String userKey, String accountNo, long amount) {
+        return depositWithSummary(userKey, accountNo, amount, "(수시입출금) : 입금");
+    }
+
+    // ✅ 새로 추가: summary(메모) 지정 버전
+    public String depositWithSummary(String userKey, String accountNo, long amount, String summary) {
         String url = "https://finopenapi.ssafy.io/ssafy/api/v1/edu/demandDeposit/updateDemandDepositAccountDeposit";
 
         Ids ids = nextIds();
@@ -78,12 +83,15 @@ public class ToDepositOA {
         Map<String, Object> payload = new LinkedHashMap<>();
         payload.put("Header", header);
         payload.put("accountNo", accountNo);
-        // 사양이 숫자/문자열 중 무엇을 기대하는지에 따라 조정. 기존 예시에 맞춰 문자열로 전송.
         payload.put("transactionBalance", String.valueOf(amount));
-        payload.put("transactionSummary", "(수시입출금) : 입금");
+        // ✅ 여기서 summary 반영 (비어있으면 기본값)
+        String finalSummary = (summary == null || summary.isBlank()) ? "(수시입출금) : 입금" : summary;
+        payload.put("transactionSummary", finalSummary);
 
-        try { log.info("[Outbound -> OpenAPI][DEPOSIT] payload=\n{}",
-                om.writerWithDefaultPrettyPrinter().writeValueAsString(payload)); } catch (Exception ignore) {}
+        try {
+            log.info("[Outbound -> OpenAPI][DEPOSIT] payload=\n{}",
+                    om.writerWithDefaultPrettyPrinter().writeValueAsString(payload));
+        } catch (Exception ignore) { }
 
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
@@ -95,4 +103,5 @@ public class ToDepositOA {
         log.info("[Inbound <- OpenAPI][DEPOSIT] status={}, body={}", response.getStatusCodeValue(), response.getBody());
         return response.getBody();
     }
+
 }

@@ -8,8 +8,6 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 const String baseUrl = 'http://10.0.2.2:8080';
-const String kSem1GoalKey = 'goal_sem1';
-const String kSem2GoalKey = 'goal_sem2';
 
 class AccountTerminationScreen extends StatefulWidget {
   final Account account;
@@ -40,7 +38,6 @@ class _AccountTerminationScreenState extends State<AccountTerminationScreen> {
   String? _bonusError;
   double _bonusRate = 0.0; // 퍼센트포인트(예: 0.05, 0.10, 0.15)
 
-  TargetScoreDto? _target;                     // 목표 성적
   final List<GradeRecordDto?> _records = [null, null]; // 최근 2학기 성적
 
   @override
@@ -52,9 +49,10 @@ class _AccountTerminationScreenState extends State<AccountTerminationScreen> {
 
   Future<void> _loadLocalGoals() async {
     final prefs = await SharedPreferences.getInstance();
-    double? parse(String? s) => (s == null || s.trim().isEmpty) ? null : double.tryParse(s.trim());
-    _goalSem1 = parse(prefs.getString(kSem1GoalKey));
-    _goalSem2 = parse(prefs.getString(kSem2GoalKey));
+    final userKey = prefs.getString('userKey') ?? '';
+    double? parse(String? s) => (s==null||s.trim().isEmpty) ? null : double.tryParse(s.trim());
+    _goalSem1 = parse(prefs.getString('goal:$userKey:sem1'));
+    _goalSem2 = parse(prefs.getString('goal:$userKey:sem2'));
   }
 
 
@@ -276,7 +274,7 @@ class _AccountTerminationScreenState extends State<AccountTerminationScreen> {
                   '달성 이자율',
                   _loadingBonus
                       ? '조회 중…'
-                      : (_bonusRate > 0 ? '+ ${_bonusRate.toStringAsFixed(2)}%' : '없음'),
+                      : (_bonusRate > 0 ? '+ ${_bonusRate.toStringAsFixed(2)}%p' : '없음'),
                 ),
 
                 // ✅ 추가: 달성으로 붙는 추가 이자 금액

@@ -4,8 +4,6 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 const String baseUrl = 'http://10.0.2.2:8080';
-const String kSem1GoalKey = 'goal_sem1';
-const String kSem2GoalKey = 'goal_sem2';
 
 class AchievementResultScreen extends StatefulWidget {
   const AchievementResultScreen({super.key});
@@ -14,8 +12,6 @@ class AchievementResultScreen extends StatefulWidget {
   State<AchievementResultScreen> createState() => _AchievementResultScreenState();
 }
 
-// --- 상태 추가 ---
-TargetScoreDto? _target; // 목표 성적(1,2학기)
 
 // --- 목표성적 DTO ---
 class TargetScoreDto {
@@ -41,8 +37,12 @@ class TargetScoreDto {
 class _AchievementResultScreenState extends State<AchievementResultScreen> {
   bool _loading = true;
   String _error = '';
+  String _sem1Key(String uk) => 'goal:$uk:sem1';
+  String _sem2Key(String uk) => 'goal:$uk:sem2';
   final List<GradeRecordDto?> _records = [null, null]; // [최근1, 최근2]
   late final List<Term> _terms;
+
+  TargetScoreDto? _target;
 
   @override
   void initState() {
@@ -60,23 +60,59 @@ class _AchievementResultScreenState extends State<AchievementResultScreen> {
     return [Term(y, 2), Term(y, 1)];
   }
 
+  Future<TargetScoreDto?> _fetchGoalsFromServer(String userKey) async {
+    final uri = Uri.parse('$baseUrl/api/target-score')
+        .replace(queryParameters: {'userKey': userKey});
+    final res = await http
+        .get(uri, headers: {'Accept': 'application/json'})
+        .timeout(const Duration(seconds: 7));
+    if (res.statusCode != 200) return null;
+    try {
+      final body = jsonDecode(res.body);
+      if (body is Map<String, dynamic>) {
+        return TargetScoreDto.fromJson(body);
+      }
+    } catch (_) {}
+    return null;
+  }
+
+  Future<TargetScoreDto?> _loadGoalsLocal(String userKey) async {
+    final prefs = await SharedPreferences.getInstance();
+    double? parse(String? s) =>
+        (s == null || s.trim().isEmpty) ? null : double.tryParse(s.trim());
+    final g1 = parse(prefs.getString(_sem1Key(userKey)));
+    final g2 = parse(prefs.getString(_sem2Key(userKey)));
+    if (g1 == null && g2 == null) return null;
+    return TargetScoreDto(goalSem1: g1, goalSem2: g2);
+  }
+
+  Future<void> _saveGoalsLocal(String userKey, TargetScoreDto t) async {
+    final prefs = await SharedPreferences.getInstance();
+    if (t.goalSem1 != null) {
+      await prefs.setString(_sem1Key(userKey), t.goalSem1!.toStringAsFixed(1));
+    }
+    if (t.goalSem2 != null) {
+      await prefs.setString(_sem2Key(userKey), t.goalSem2!.toStringAsFixed(1));
+    }
+  }
+
+
   Future<void> _load() async {
     try {
       final prefs = await SharedPreferences.getInstance();
       final userKey = prefs.getString('userKey') ?? '';
       if (userKey.isEmpty) throw Exception('로그인 정보(userKey)가 없습니다.');
 
-      // 🔹 목표성적 조회
-      double? _parseGoal(String? s) =>
-          (s == null || s.trim().isEmpty) ? null : double.tryParse(s.trim());
+      // 🔹 목표성적 조회 (서버 우선 → 로컬 폴백)
+      TargetScoreDto? srv = await _fetchGoalsFromServer(userKey);
+      if (srv != null) {
+        _target = srv;
+        await _saveGoalsLocal(userKey, srv); // 캐시 동기화
+      } else {
+        _target = await _loadGoalsLocal(userKey); // 오프라인/서버 미응답 시
+      }
 
-      final g1 = _parseGoal(prefs.getString(kSem1GoalKey));
-      final g2 = _parseGoal(prefs.getString(kSem2GoalKey));
-
-      // 화면에서 기존 TargetScoreDto 타입 그대로 쓰고 있으므로 맞춰서 세팅
-      _target = TargetScoreDto(goalSem1: g1, goalSem2: g2);
-
-      // 두 학기를 각각 조회
+      // 🔹 최근 2학기 성적 조회
       for (int i = 0; i < _terms.length; i++) {
         final t = _terms[i];
         final uri = Uri.parse('$baseUrl/api/grades/record').replace(queryParameters: {
@@ -85,15 +121,13 @@ class _AchievementResultScreenState extends State<AchievementResultScreen> {
           'semester': t.semester.toString(),
         });
 
-        final res = await http.get(uri, headers: {'Accept': 'application/json'}).timeout(
-          const Duration(seconds: 7),
-        );
+        final res = await http.get(uri, headers: {'Accept': 'application/json'})
+            .timeout(const Duration(seconds: 7));
 
         if (res.statusCode == 200) {
           dynamic root;
           try { root = jsonDecode(res.body); } catch (_) { root = res.body; }
 
-          // 서버 응답이 {record:{...}} 혹은 바로 {...} 인 경우 모두 대응
           Map<String, dynamic>? map;
           if (root is Map<String, dynamic>) {
             final r = root['record'] ?? root['REC'] ?? root;
@@ -101,7 +135,7 @@ class _AchievementResultScreenState extends State<AchievementResultScreen> {
           }
           _records[i] = map == null ? null : GradeRecordDto.fromJson(map);
         } else if (res.statusCode == 404) {
-          _records[i] = null; // 해당 학기 데이터 없음
+          _records[i] = null;
         } else {
           throw Exception('HTTP ${res.statusCode} ${res.body}');
         }
@@ -112,6 +146,7 @@ class _AchievementResultScreenState extends State<AchievementResultScreen> {
       if (mounted) setState(() => _loading = false);
     }
   }
+
 
   @override
   Widget build(BuildContext context) {
