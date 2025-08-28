@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'grade_screen.dart';
 
 class AllMenuScreen extends StatefulWidget {
   @override
@@ -92,7 +93,7 @@ class _AllMenuScreenState extends State<AllMenuScreen> {
                               ),
                               SizedBox(width: 8),
                               Text(
-                                '21167340, 소프트웨어학부',
+                                '1412345, 소프트웨어학부',
                                 style: TextStyle(
                                   fontSize: 12,
                                   color: Colors.grey[600],
@@ -273,13 +274,19 @@ class _AllMenuScreenState extends State<AllMenuScreen> {
   Widget _buildMenuItem(IconData icon, String title) {
     return InkWell(
       onTap: () {
-        // 메뉴 아이템 클릭 처리
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('$title 선택됨'),
-            duration: Duration(seconds: 1),
-          ),
-        );
+        if (title == '개인성적조회') {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => GradeScreen()),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('$title 선택됨'),
+              duration: Duration(seconds: 1),
+            ),
+          );
+        }
       },
       child: Row(
         children: [

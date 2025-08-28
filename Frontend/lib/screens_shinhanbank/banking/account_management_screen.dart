@@ -53,7 +53,7 @@ class AccountManagementScreen extends StatelessWidget {
                   _buildSectionTitle('기본정보'),
                   _buildInfoRow('계좌상품', account.productName),
                   _buildInfoRow('계좌개설일', account.openingDate),
-                  _buildInfoRow('만기일', account.maturityDate),
+                  _buildInfoRow('만기일', account.maturityDate), // 만기
                   _buildInfoRow('기본금리', '연 ${account.interestRate}%'),
                 ],
               ),
