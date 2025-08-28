@@ -29,6 +29,4 @@ public class GradeRecord {
 
  @Column(length = 10)
  private String type;            // 예: "전공"
- 
- // 🔥 SubjectGrade 제거에 따라 @OneToMany subjects 필드 삭제
 }

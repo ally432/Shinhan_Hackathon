@@ -12,6 +12,13 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserInfoService {
 
  private final UserInfoRepository userInfoRepository;
+ 
+ @Transactional(readOnly = true)
+ public String findUserIdByUserKey(String userKey) {
+     return userInfoRepository.findByUserKey(userKey)
+             .map(UserInfo::getUserId)
+             .orElse(null);  // 없으면 null → 컨트롤러에서 404 처리
+ }
 
  @Transactional
  public UserInfo saveFromApi(MemberCreateResponse dto) {

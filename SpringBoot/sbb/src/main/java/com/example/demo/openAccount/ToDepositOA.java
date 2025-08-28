@@ -39,7 +39,7 @@ public class ToDepositOA {
     }
 
     // ===== instTxnNo 생성(초 중복 방지, suffix 고정) =====
-    private static final String SUFFIX = "123473"; // ← 너희 규칙에 맞춰 고정
+    private static final String SUFFIX = "123473";
     private static String lastTimeStr = "";
     private static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("yyyyMMdd");
     private static final DateTimeFormatter TIME_FMT = DateTimeFormatter.ofPattern("HHmmss");

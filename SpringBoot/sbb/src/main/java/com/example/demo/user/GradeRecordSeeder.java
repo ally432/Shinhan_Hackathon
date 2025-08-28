@@ -38,7 +38,7 @@ public class GradeRecordSeeder {
      entry("123456@ssafy.com", Map.of("2025-1", 3.92, "2024-2", 3.78)),
      entry("asdadsd111111@asdsdsad.com", Map.of("2025-1", 4.5, "2024-2", 3.45)),
      entry("asdadsd12121@asdsdsad.com", Map.of("2025-1", 3.05, "2024-2", 4.29)),
-     entry("asdadsd5466@asdsdsad.com", Map.of("2025-1", 3.62, "2024-2", 3.17)),
+     entry("asdadsd5466@asdsdsad.com", Map.of("2025-1", 3.78, "2024-2", 4.19)),
      entry("dfjsioejfemfkl@ssafy.com", Map.of("2025-1", 3.88, "2024-2", 3.34)),
      entry("sdjfkslaj@ssafy.com", Map.of("2025-1", 4.21, "2024-2", 3.09)),
      entry("ssafy12345687@ssafy.com", Map.of("2025-1", 3.73, "2024-2", 3.56)),
