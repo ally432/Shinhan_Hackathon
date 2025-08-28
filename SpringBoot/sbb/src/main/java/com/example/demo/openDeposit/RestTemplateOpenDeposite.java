@@ -110,4 +110,3 @@ public class RestTemplateOpenDeposite {
      return response.getBody();
  }
 }
-

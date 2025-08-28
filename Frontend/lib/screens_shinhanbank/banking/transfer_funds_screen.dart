@@ -1,7 +1,8 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:Frontend/models/account_model.dart';
-import 'package:Frontend/screens_shinhanbank/home_screen_fail.dart';
+import 'package:Frontend/screens_shinhanbank/home_screen.dart' as success;
+import 'package:Frontend/screens_shinhanbank/home_screen_fail.dart' as fail;
 import 'package:Frontend/widgets/step_layout.dart';
 import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
@@ -10,12 +11,14 @@ import 'package:shared_preferences/shared_preferences.dart';
 const String baseUrl = 'http://10.0.2.2:8080';
 
 class TransferFundsScreen extends StatefulWidget {
-  final int amount;
-  final Account account; // ✅ 해지 대상 계좌
+  final int amount;            // 기본 해지금(원금+정상이자)
+  final int bonusAmount;       // ✅ 추가 이자(달성)
+  final Account account;       // 해지 대상 계좌
 
   const TransferFundsScreen({
     super.key,
     required this.amount,
+    this.bonusAmount = 0,      // ✅ 기본 0
     required this.account,
   });
 
@@ -28,6 +31,10 @@ class _TransferFundsScreenState extends State<TransferFundsScreen> {
   String? _selectedBank;
   bool _isButtonEnabled = false;
   bool _submitting = false;
+
+  final _currency = NumberFormat.currency(locale: 'ko_KR', symbol: '');
+
+  int get _totalPayout => widget.amount + widget.bonusAmount;
 
   void _validateInput() {
     setState(() {
@@ -57,11 +64,12 @@ class _TransferFundsScreenState extends State<TransferFundsScreen> {
 
     if (ok != true) return;
 
-    // 실제로는 PIN 확인 로직이 필요하지만, 여기서는 생략하고 바로 해지 호출
-    await _submitCloseDeposit();
+    // 실제 핀 검증 로직은 생략
+    await _submitCloseDepositAndBonus();
   }
 
-  Future<void> _submitCloseDeposit() async {
+  Future<void> _submitCloseDepositAndBonus() async {
+    if (_submitting) return;                // 재진입 방지
     setState(() => _submitting = true);
 
     try {
@@ -69,59 +77,102 @@ class _TransferFundsScreenState extends State<TransferFundsScreen> {
       final userKey = prefs.getString('userKey') ?? '';
       if (userKey.isEmpty) throw Exception('로그인 정보(userKey)가 없습니다.');
 
-      // 해지할 "예금" 계좌번호 (하이픈 제거)
-      final accountNo = widget.account.accountNumber.replaceAll(RegExp(r'\D'), '');
-
-      final uri = Uri.parse('$baseUrl/deposit/closeDeposit');
-      final res = await http
-          .post(
-        uri,
+      // 1) 예금 해지
+      final tdAccountNo = widget.account.accountNumber.replaceAll(RegExp(r'\D'), '');
+      final closeUri = Uri.parse('$baseUrl/deposit/closeDeposit');
+      final closeRes = await http.post(
+        closeUri,
         headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'userKey': userKey, 'accountNo': accountNo}),
-      )
-          .timeout(const Duration(seconds: 7));
+        body: jsonEncode({'userKey': userKey, 'accountNo': tdAccountNo}),
+      ).timeout(const Duration(seconds: 7));
 
-      if (res.statusCode != 200) {
-        throw Exception('HTTP ${res.statusCode}: ${res.body}');
+      if (closeRes.statusCode != 200) {
+        throw Exception('해지 실패: HTTP ${closeRes.statusCode}: ${closeRes.body}');
       }
-
-      // 성공 판단: Header.responseCode == 'H0000' 기준
-      bool success = true;
+      bool closeOk = true;
       try {
-        final root = jsonDecode(res.body);
+        final root = jsonDecode(closeRes.body);
         final header = (root['Header'] ?? root['header'] ?? {}) as Map?;
         final code = header?['responseCode']?.toString() ?? '';
-        success = code == 'H0000' || code.isEmpty; // 일부 샘플 대응
-      } catch (_) {
-        // 바디가 비어있거나 포맷이 달라도 200이면 성공 처리
-      }
+        closeOk = code == 'H0000' || code.isEmpty;
+      } catch (_) {}
+      if (!closeOk) throw Exception('해지 실패(코드 확인 필요): ${closeRes.body}');
 
+      // 2) 보너스 입금 —❗️단 1회만 호출
+      bool bonusOk = true;
+      if (widget.bonusAmount > 0) {
+        bonusOk = await _depositBonusToDemand(userKey, widget.bonusAmount);
+      }
       if (!mounted) return;
 
-      if (success) {
-        // 홈으로 이동
-        Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(builder: (context) => const HomeScreen()),
+      // 3) 안내 메시지
+      final baseStr  = _currency.format(widget.amount);
+      final bonusStr = _currency.format(widget.bonusAmount);
+      final totalStr = _currency.format(_totalPayout);
+      final msg = widget.bonusAmount > 0
+          ? (bonusOk
+          ? '✅ 해지 완료: 기본 ${baseStr}원 + 보너스 ${bonusStr}원 = 총 ${totalStr}원 입금 처리되었습니다.'
+          : '⚠️ 해지 완료(보너스 입금 실패): 기본 ${baseStr}원은 입금, 보너스는 추후 재시도 바랍니다.')
+          : '✅ 해지 완료: ${baseStr}원 입금 처리되었습니다.';
+
+      // 4) 내비게이션 (성공/실패 분기)
+      if (bonusOk) {
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (_) => const success.HomeScreen()),
               (route) => false,
         );
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              '✅ 해지 완료: ${NumberFormat.currency(locale: "ko_KR", symbol: "").format(widget.amount)}원이 입금됩니다.',
-            ),
-          ),
-        );
       } else {
-        throw Exception('해지 실패(코드 확인 필요): ${res.body}');
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (_) => const fail.HomeScreen()),
+              (route) => false,
+        );
       }
+
+      // (선택) 목적지 화면에서 스낵바 띄우고 싶으면 파라미터로 메시지 넘겨서 거기서 표시하세요.
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('해지 실패: $e')),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('처리 실패: $e')));
     } finally {
       if (mounted) setState(() => _submitting = false);
     }
+  }
+
+  /// 추가 이자를 입력한 수시입출금 계좌로 입금 (성공/실패 반환)
+  Future<bool> _depositBonusToDemand(String userKey, int bonusAmount) async {
+    final destBank = _selectedBank;
+    final destAcc  = _accountController.text.replaceAll(RegExp(r'\D'), '');
+
+    if (destBank == null || destAcc.isEmpty) {
+      throw Exception('입금 계좌 정보를 확인하세요.');
+    }
+
+    final uri = Uri.parse('$baseUrl/demand/deposit');
+
+    final res = await http
+        .post(
+      uri,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'userKey': userKey,
+        'bankName': destBank,
+        'accountNo': destAcc,
+        'amount': bonusAmount,
+        'memo': '학기 목표 달성 보너스 이자'
+      }),
+    )
+        .timeout(const Duration(seconds: 7));
+
+    if (res.statusCode != 200) return false;
+
+    try {
+      final root = jsonDecode(res.body);
+      if (root is Map && root['success'] == true) return true;
+    } catch (_) {/* ignore */}
+    return false;
   }
 
   @override
@@ -134,7 +185,10 @@ class _TransferFundsScreenState extends State<TransferFundsScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            '해지 금액 ${NumberFormat.currency(locale: 'ko_KR', symbol: '').format(widget.amount)}원을 입금할 계좌를 입력해주세요.',
+            // 요약 안내
+            '해지 금액 ${_currency.format(widget.amount)}원'
+                '${widget.bonusAmount > 0 ? ' + 추가 이자 ${_currency.format(widget.bonusAmount)}원' : ''}\n'
+                '총 입금액: ${_currency.format(_totalPayout)}원',
             style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 8),
@@ -142,7 +196,9 @@ class _TransferFundsScreenState extends State<TransferFundsScreen> {
             '해지 대상: ${widget.account.accountName} (${widget.account.accountNumber})',
             style: TextStyle(color: Colors.grey[700]),
           ),
-          const SizedBox(height: 32),
+          const SizedBox(height: 24),
+
+          // 목적지(수시입출금) 정보
           DropdownButtonFormField<String>(
             hint: const Text('은행 선택'),
             value: _selectedBank,
@@ -155,16 +211,17 @@ class _TransferFundsScreenState extends State<TransferFundsScreen> {
                 .toList(),
             decoration: const InputDecoration(border: OutlineInputBorder()),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
           TextField(
             controller: _accountController,
             onChanged: (_) => _validateInput(),
             decoration: const InputDecoration(
-              hintText: "'-' 없이 계좌번호 입력",
+              hintText: "'-' 없이 수시입출금 계좌번호 입력",
               border: OutlineInputBorder(),
             ),
             keyboardType: TextInputType.number,
           ),
+
           if (_submitting) ...[
             const SizedBox(height: 20),
             const Center(child: CircularProgressIndicator()),

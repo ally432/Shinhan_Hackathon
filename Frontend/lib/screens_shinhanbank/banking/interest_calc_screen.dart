@@ -5,9 +5,13 @@ import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'achievement_result_screen.dart';
+
+
 const String baseUrl = 'http://10.0.2.2:8080';
 
 enum InterestMode { maturity, early }
+
 
 class InterestCalcScreen extends StatefulWidget {
   final Account account;
@@ -63,6 +67,26 @@ class _InterestCalcScreenState extends State<InterestCalcScreen>
     ]);
     if (mounted) setState(() {});
   }
+
+  // 🔹 성적 달성 조회 로딩 상태
+  bool _checkingAchv = false;
+
+  // 🔹 성적 달성 조회
+  // 🔹 성적 달성 확인 화면으로 이동 (API는 새 화면에서 호출)
+  Future<void> _checkAchievement() async {
+    if (_checkingAchv) return;
+    setState(() => _checkingAchv = true);
+    try {
+      await Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const AchievementResultScreen()),
+      );
+    } finally {
+      if (mounted) setState(() => _checkingAchv = false);
+    }
+  }
+
+
 
   // -------------------- 만기 이자: 서버 조회 (실패 시 폴백) --------------------
   Future<void> _loadExpiryFromServerOrFallback() async {
@@ -205,6 +229,25 @@ class _InterestCalcScreenState extends State<InterestCalcScreen>
           ],
         ),
       ),
+      // 🔹 하단 고정 버튼
+      bottomNavigationBar: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+          child: SizedBox(
+            width: double.infinity,
+            height: 48,
+            child: ElevatedButton(
+              onPressed: _checkingAchv ? null : _checkAchievement,
+              child: _checkingAchv
+                  ? const SizedBox(
+                width: 20, height: 20,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              )
+                  : const Text('성적 달성 확인하기'),
+            ),
+          ),
+        ),
+      ),
       body: TabBarView(
         controller: _tab,
         children: [
@@ -316,4 +359,5 @@ class _InterestCalcScreenState extends State<InterestCalcScreen>
       ),
     );
   }
+
 }

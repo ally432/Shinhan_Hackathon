@@ -107,4 +107,3 @@ public class OpenDepositController {
         private String depositBalance; // API 규격이 문자열이면 String 유지
     }
 }
-
