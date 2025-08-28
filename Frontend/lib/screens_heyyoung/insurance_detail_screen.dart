@@ -14,7 +14,7 @@ class InsuranceDetailScreen extends StatelessWidget {
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          '시험 보험',
+          'The 성적 UP',
           style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold),
         ),
       ),
@@ -55,7 +55,7 @@ class InsuranceDetailScreen extends StatelessWidget {
                               ),
                               SizedBox(width: 12),
                               Text(
-                                '시험 보험',
+                                'The 성적 UP',
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 24,
@@ -66,10 +66,11 @@ class InsuranceDetailScreen extends StatelessWidget {
                           ),
                           SizedBox(height: 16),
                           Text(
-                            '시험 응시 중 발생할 수 있는\n다양한 상황에 대비하세요',
+                            '성적 Up! 금리 Up!\n두 마리 토끼를 잡으세요!',
                             style: TextStyle(
                               color: Colors.white70,
                               fontSize: 16,
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
                           SizedBox(height: 20),
@@ -79,14 +80,6 @@ class InsuranceDetailScreen extends StatelessWidget {
                               color: Colors.white.withOpacity(0.2),
                               borderRadius: BorderRadius.circular(20),
                             ),
-                            child: Text(
-                              '월 4만 8천원',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
                           ),
                         ],
                       ),
@@ -95,7 +88,7 @@ class InsuranceDetailScreen extends StatelessWidget {
 
                   SizedBox(height: 24),
 
-                  // 보험 혜택 내용
+                  // 상품 혜택 내용
                   Container(
                     width: double.infinity,
                     padding: EdgeInsets.all(20),
@@ -114,7 +107,7 @@ class InsuranceDetailScreen extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          '보험 혜택',
+                          '상품 혜택',
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
@@ -122,11 +115,11 @@ class InsuranceDetailScreen extends StatelessWidget {
                           ),
                         ),
                         SizedBox(height: 16),
-                        _buildBenefitItem('✓ 시험 당일 응급상황 발생 시 재시험 기회 제공'),
-                        _buildBenefitItem('✓ 교통사고로 인한 시험 지연 시 보상'),
-                        _buildBenefitItem('✓ 갑작스런 질병으로 인한 시험 응시 불가 시 지원'),
-                        _buildBenefitItem('✓ 천재지변으로 인한 시험 취소 시 환불'),
-                        _buildBenefitItem('✓ 기술적 문제로 인한 온라인 시험 장애 시 보상'),
+                        _buildBenefitItem('✓ 목표 성적 기반 자기주도 학습 습관'),
+                        _buildBenefitItem('✓ 달성 시 최대 연 0.15% 추가 금리'),
+                        _buildBenefitItem('✓ 미달 시 포인트 및 쿠폰 위로 보상'),
+                        _buildBenefitItem('✓ 다음 학기에 이어가는 도전'),
+                        _buildBenefitItem('✓ 대학생 맞춤 학업 및 금융 경험'),
                       ],
                     ),
                   ),
@@ -161,7 +154,7 @@ class InsuranceDetailScreen extends StatelessWidget {
                         ),
                         SizedBox(height: 16),
                         Text(
-                          '제1조 (목적)\n본 약관은 시험 보험 서비스 이용에 관한 제반 사항을 규정함을 목적으로 합니다.\n\n제2조 (정의)\n"시험"이라 함은 학교에서 주관하는 모든 형태의 평가를 의미합니다.\n\n제3조 (보상 범위)\n다음 각 호의 경우에 보상을 제공합니다:\n1. 응급의료상황 발생\n2. 교통사고 또는 대중교통 지연\n3. 천재지변\n4. 기타 불가피한 사유\n\n제4조 (보상 제외 사항)\n고의 또는 중과실로 인한 경우는 보상에서 제외됩니다.\n\n제5조 (보험료)\n월 보험료는 48,000원이며, 매월 자동 결제됩니다.\n\n제6조 (계약 해지)\n언제든지 계약 해지가 가능하며, 해지 시 미사용 기간에 대해 일할 계산하여 환불됩니다.\n\n제7조 (보상 신청)\n보상 신청은 사유 발생 후 7일 이내에 신청해야 하며, 관련 증빙서류를 첨부해야 합니다.\n\n제8조 (면책 사항)\n다음의 경우에는 보상하지 않습니다:\n1. 보험 가입 전 발생한 사유\n2. 허위 신고나 기만적 행위\n3. 전쟁, 테러 등 불가항력적 사유\n\n제9조 (분쟁 해결)\n본 보험과 관련된 분쟁은 관할 법원에서 해결합니다.',
+                          '제1조 (목적)\n본 약관은 신한은행이 제공하는 「The 성적 UP」 상품의 가입, 운영 및 해지와 관련하여 필요한 사항을 규정함을 목적으로 한다.\n\n제2조 (정의)\n① “가입자”라 함은 본 상품에 가입한 개인을 말한다.\n② “목표 성적”이라 함은 가입자가 사전에 설정한 학기별 성적 기준을 말한다.\n③ “우대금리”라 함은 목표 성적 달성 시 기본금리에 추가로 제공되는 금리를 말한다.\n④ “위로 보상”이라 함은 목표 성적 미달 시 제공되는 신한 포인트, 기프티콘, 땡겨요 쿠폰 등을 말한다.\n⑤ 기타 용어의 정의는 관련 법령 및 은행 일반 약관에서 정한 바에 따른다.\n\n제3조 (가입 대상)\n본 상품은 국내 대학(전문대학 포함)에 재학 중인 만 19세 이상 만 29세 이하 개인만 가입할 수 있다.\n\n제4조 (가입 및 예치)\n① 가입자는 은행이 지정한 자유 적립식 정기예금 계좌를 개설해야 한다.\n② 예치금은 최소 50만원 이상으로 하며, 이후 추가 납입은 불가능하다.\n③ 예치 기간은 기본 12개월로 하며, 성적 확인은 해당 기간 동안의 성적 정보를 사용한다.\n\n제5조 (목표 성적 설정 및 검증)\n① 가입자는 상품을 학기 초에 가입하여 목표 성적을 설정하여야 한다.\n② 성적 검증은 제휴 대학 포털에 기재된 성적을 통해 이루어진다.\n③ 성적 확인은 상품 만기 후 은행이 지정한 일정에 따라 자동으로 진행된다.\n\n제6조 (우대 금리)\n① 목표 성적 달성 시, 기본금리에 추가로 아래와 같이 우대금리를 제공한다.\n4.3 ~ 4.5 : 연 0.15%p\n4.0 ~ 4.29 : 연 0.10%p\n3.7 ~ 3.99 : 연 0.05%p\n② 목표 성적 미달 시 우대금리는 적용되지 않는다.\n③ 동일 학년도 1·2학기 중 더 높은 성적을 기준으로 적용한다.\n\n제7조 (위로 보상)\n① 가입자가 목표 성적에 미달한 경우, 예치금의 2% 범위 내에서 위로 보상을 제공한다.\n② 위로 보상은 신한 포인트, 땡겨요 쿠폰, 기프티콘 중 가입자가 선택할 수 있다.\n③ 위로 보상은 1회 최대 2만원 한도로 지급된다.\n\n제8조 (중도해지 및 해지 시 처리)\n① 가입자가 예금을 중도 해지하는 경우, 은행의 일반 정기예금 중도해지 이율을 적용한다.\n② 성적 검증 완료 이전에 해지하는 경우, 우대금리 및 위로 보상은 지급되지 않는다.\n③ 만기 시 은행은 목표 성적 달성 여부에 따른 금리를 반영하여 원리금을 지급한다.\n\n제9조 (기타 사항)\n① 본 약관에 명시되지 아니한 사항은 은행의 일반 정기예금 약관 및 관련 법령에 따른다.\n② 은행은 불가피한 사유 발생 시 상품 내용을 변경할 수 있으며, 이 경우 사전에 가입자에게 통지한다.\n③ 본 약관은 2025년 8월 11일부터 시행한다.',
                           style: TextStyle(
                             fontSize: 14,
                             color: Colors.black87,
