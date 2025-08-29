@@ -74,9 +74,6 @@ class _Step6AccountVerifyScreenState extends State<Step6AccountVerifyScreen> {
           final accountNo = _accountController.text.trim();
           await prefs.setString('verifiedAccountNo', accountNo);
           await prefs.setString('selectedAccountNo', accountNo); // ← Step8에서 쓰는 키와 통일
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('✅ 계좌가 확인되었습니다.')),
-          );
         }
         else {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -168,7 +165,7 @@ class _Step6AccountVerifyScreenState extends State<Step6AccountVerifyScreen> {
             ],
           ),
           const SizedBox(height: 24),
-          const Center(child: Text('또는', style: TextStyle(color: Colors.grey))),
+          const Center(child: Text('또는', style: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold))),
           const SizedBox(height: 16),
           Center(
             child: OutlinedButton(

@@ -23,8 +23,8 @@ class RegistrationCompleteScreen extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               Text(
-                '이제 시험 보험 서비스를 이용하실 수 있습니다.',
-                style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+                '목표 달성을 위해 열심히 달려봐요!',
+                style: TextStyle(fontSize: 16, color: Colors.grey[600], fontWeight: FontWeight.bold),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 48),
