@@ -24,7 +24,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    _loadAccount(); // ✅ 더 이상 무조건 팝업 예약하지 않음
+    _loadAccount();
   }
 
   @override
@@ -32,14 +32,24 @@ class _HomeScreenState extends State<HomeScreen> {
     final currencyFormat = NumberFormat.currency(locale: 'ko_KR', symbol: '');
 
     return Scaffold(
-      backgroundColor: Colors.grey[100],
       appBar: AppBar(
-        leading: const Padding(
-          padding: EdgeInsets.all(8.0),
-          child: CircleAvatar(child: Text('S')),
+        title: RichText(
+          text: TextSpan(
+            style: TextStyle(fontSize: 23, fontWeight: FontWeight.bold),
+            children: [
+              TextSpan(
+                text: 'Super ',
+                style: TextStyle(color: Colors.green),
+              ),
+              TextSpan(
+                text: 'SOL',
+                style: TextStyle(color: Colors.blue),
+              ),
+            ],
+          ),
         ),
-        title: const Text('Super SOL', style: TextStyle(fontWeight: FontWeight.bold)),
-        actions: [
+
+    actions: [
           IconButton(onPressed: () {}, icon: const Icon(Icons.search)),
           IconButton(onPressed: () {}, icon: const Icon(Icons.notifications_none)),
         ],

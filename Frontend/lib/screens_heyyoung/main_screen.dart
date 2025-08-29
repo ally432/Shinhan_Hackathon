@@ -21,7 +21,7 @@ class _MainScreenState extends State<MainScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFFF5F5F5),
+      backgroundColor: Color(0xFFFFFFFF),
       body: _currentIndex == 0
           ? _buildMainContent()
           : _currentIndex == 1
@@ -29,7 +29,7 @@ class _MainScreenState extends State<MainScreen> {
           : AllMenuScreen(),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
-        selectedItemColor: Colors.pink,
+        selectedItemColor: Colors.blue,
         unselectedItemColor: Colors.grey,
         currentIndex: _currentIndex,
         onTap: (index) {
@@ -158,19 +158,16 @@ class _MainScreenState extends State<MainScreen> {
                           Container(
                             width: 60,
                             height: 60,
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              shape: BoxShape.circle,
-                            ),
                             child: Center(
-                              child: Icon(
-                                Icons.person,
-                                size: 35,
-                                color: Colors.blue[700],
+                              child: Image.asset(
+                                'assets/icons/moli.png',
+                                width: 60,
+                                height: 60,
+                                fit: BoxFit.contain,
                               ),
                             ),
                           ),
-                          SizedBox(width: 16),
+                          SizedBox(width: 25),
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -178,12 +175,13 @@ class _MainScreenState extends State<MainScreen> {
                                 '소프트웨어학부, 졸업생',
                                 style: TextStyle(
                                   color: Colors.white70,
+                                  fontWeight: FontWeight.bold,
                                   fontSize: 12,
                                 ),
                               ),
                               SizedBox(height: 4),
                               Text(
-                                '김싸피 (1412345)',
+                                '김몰리 (1412345)',
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 20,
@@ -291,7 +289,7 @@ class _MainScreenState extends State<MainScreen> {
                             Text(
                               'The 성적 UP!',
                               style: TextStyle(
-                                fontSize: 16,
+                                fontSize: 20,
                                 fontWeight: FontWeight.bold,
                                 color: Colors.black87,
                               ),
@@ -300,7 +298,7 @@ class _MainScreenState extends State<MainScreen> {
                             Text(
                               '좋은 성적 받고 돈 받으러 가기',
                               style: TextStyle(
-                                fontSize: 12,
+                                fontSize: 15,
                                 color: Colors.grey[600],
                               ),
                             ),
@@ -311,33 +309,23 @@ class _MainScreenState extends State<MainScreen> {
                         width: 60,
                         height: 60,
                         decoration: BoxDecoration(
-                          color: Colors.green[100],
+                          // color: Colors.green[100],
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Stack(
                           children: [
                             Center(
-                              child: Icon(
-                                Icons.receipt_long,
-                                color: Colors.green[600],
-                                size: 30,
-                              ),
-                            ),
-                            Positioned(
-                              top: 8,
-                              right: 8,
-                              child: Container(
-                                width: 8,
-                                height: 8,
-                                decoration: BoxDecoration(
-                                  color: Colors.orange,
-                                  shape: BoxShape.circle,
-                                ),
+                              child: Image.asset(
+                                'assets/icons/the_grade_up.png',
+                                width: 100,
+                                height: 100,
+                                fit: BoxFit.contain,
                               ),
                             ),
                           ],
                         ),
                       ),
+                      SizedBox(width: 10),
                     ],
                   ),
                 ),
@@ -371,9 +359,9 @@ class _MainScreenState extends State<MainScreen> {
                           MaterialPageRoute(builder: (context) => GradeScreen()),
                         );
                       }),
-                      _buildMyMenuItem(Icons.search, '급학기성적\n조회', () {}),
-                      _buildMyMenuItem(Icons.credit_card, '디기능카\n등록', () {}),
-                      _buildMyMenuItem(Icons.school, '디기능카\n등록실적', () {}),
+                      _buildMyMenuItem(Icons.search, '금학기성적\n조회', () {}),
+                      _buildMyMenuItem(Icons.credit_card, '다기능카드\n등록', () {}),
+                      _buildMyMenuItem(Icons.school, '다기능카드\n등록실적', () {}),
                     ],
                   ),
                 ],
