@@ -62,19 +62,19 @@ class _AccountCreationScreenState extends State<AccountCreationScreen> {
                   ),
                   child: Column(
                     children: [
-                      Icon(Icons.account_balance,
+                      Icon(Icons.monetization_on,
                           color: Colors.blue[600], size: 40),
                       const SizedBox(height: 8),
                       const Text(
-                        '신한 SOL 수시입출금통장',
+                        '쏠편한 수시입출금통장',
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 8),
                       Text(
-                        '언제든 자유롭게 입출금 가능한 기본 통장',
+                        '언제든 자유롭게 입출금 가능한 통장',
                         style: TextStyle(
                           fontSize: 14,
                           color: Colors.grey[600],
@@ -88,15 +88,23 @@ class _AccountCreationScreenState extends State<AccountCreationScreen> {
 
                 const Text(
                   '개인정보 입력',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
+                const SizedBox(height: 16),
+
+                const Divider(
+                  color: Colors.grey, // 선의 색상
+                  height: 20,         // 선을 포함한 위젯의 전체 높이 (위아래 여백 포함)
+                  thickness: 1,       // 선의 두께
+                ),
+
                 const SizedBox(height: 16),
 
                 // 이름 입력
                 _buildInputField(
                   controller: _nameController,
                   label: '이름',
-                  hintText: '실명을 입력하세요',
+                  hintText: '이름을 입력하세요',
                   textInputAction: TextInputAction.next,
                   validator: (value) {
                     if (value?.isEmpty ?? true) {
@@ -187,8 +195,16 @@ class _AccountCreationScreenState extends State<AccountCreationScreen> {
 
                 const Text(
                   '계좌 비밀번호 설정',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
+                const SizedBox(height: 16),
+
+                const Divider(
+                  color: Colors.grey, // 선의 색상
+                  height: 20,         // 선을 포함한 위젯의 전체 높이 (위아래 여백 포함)
+                  thickness: 1,       // 선의 두께
+                ),
+
                 const SizedBox(height: 16),
 
                 // 계좌 비밀번호 입력
