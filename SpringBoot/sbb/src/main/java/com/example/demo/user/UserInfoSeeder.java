@@ -12,7 +12,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
 import com.example.demo.signup.UserInfoRepository;
-import com.example.demo.user.UserInfo; // ✅ 누락 import 추가
+import com.example.demo.user.UserInfo; // ✅ 누락 import 유지
 
 @Configuration
 @Profile("seed")
@@ -22,10 +22,12 @@ public class UserInfoSeeder {
     private static final DateTimeFormatter FLEX =
         new DateTimeFormatterBuilder()
             .appendPattern("yyyy-MM-dd HH:mm:ss")
-            .optionalStart().appendLiteral('.').appendFraction(ChronoField.MICRO_OF_SECOND, 1, 9, false).optionalEnd()
+            .optionalStart().appendLiteral('.')
+            .appendFraction(ChronoField.MICRO_OF_SECOND, 1, 9, false)
+            .optionalEnd()
             .toFormatter();
 
-    // userId, created, institutionCode, modified, userKey, username  (표의 값 그대로)
+    // userId, created, institutionCode, modified, userKey, username
     private static final List<String[]> RAW = List.of(
         new String[]{"123456@ssafy.com","2025-08-17 07:57:53.954714","00100","2025-08-17 07:57:53.954714","e8a7d57a-8bb7-41d2-ab3d-f03f0cb20ff8","123456"},
         new String[]{"asdadsd111111@asdsdsad.com","2025-08-16 13:16:05.062144","00100","2025-08-16 13:16:05.062144","760a0369-3f4b-4157-95ce-67725398a33a","asdadsd111"},
@@ -59,7 +61,18 @@ public class UserInfoSeeder {
         new String[]{"lemonriver27@proton.me","2025-08-28 07:04:43.449754","00100","2025-08-28 07:04:43.449754","542234aa-b1c7-4fdb-a0d4-6eeb5bceebd5","lemonriver"},
         new String[]{"stonebridge46@gmail.com","2025-08-28 07:04:55.310169","00100","2025-08-28 07:04:55.310169","d98d95c7-1154-4357-9390-49eec9a604b6","stonebridg"},
         new String[]{"orchidwave82@gmail.com","2025-08-28 07:08:08.828722","00100","2025-08-28 07:08:08.828722","92b37710-8e02-402f-9bdf-d8ecf9ed8ac9","orchidwave"},
-        new String[]{"bluehorizon24@naver.com","2025-08-28 07:08:24.606455","00100","2025-08-28 07:08:24.606455","d30c22f7-084f-4a97-8782-873be8a5ab2c","bluehorizo"}
+        new String[]{"bluehorizon24@naver.com","2025-08-28 07:08:24.606455","00100","2025-08-28 07:08:24.606455","d30c22f7-084f-4a97-8782-873be8a5ab2c","bluehorizo"},
+
+        // ===== ✅ 추가(요청하신 신규 항목들) =====
+        new String[]{"qwertyuiop@qwertyuiop.com","2025-08-26 15:09:49.409818","00100","2025-08-26 15:09:49.409818","950c0f9f-7541-40d1-a56a-f85ee89c58c4","qwertyuiop"},
+        new String[]{"Shin@ssafy.com","2025-08-28 13:42:16.788908","00100","2025-08-28 13:42:16.788908","899fdb7d-3dd6-4b26-9329-35360abec2f4","Shin"},
+        new String[]{"spring.morning@naver.com","2025-08-27 14:13:51.281852","00100","2025-08-27 14:13:51.281852","5a3a442b-af8f-4756-bd67-bb3b16e116d1","spring.mor"},
+        new String[]{"stonebridge46@ssafy.com","2025-08-28 13:26:39.640048","00100","2025-08-28 13:26:39.640048","043020bf-3583-4fe1-8b21-26ef09a6fe84","stonebridg"},
+        new String[]{"sunny.sundae@gmail.com","2025-08-27 14:13:02.194358","00100","2025-08-27 14:13:02.194358","6ef69c0f-5c5e-4ee5-84e8-a65b50c3dc36","sunny.sund"},
+        new String[]{"surf61@ssafy.com","2025-08-28 13:35:07.783342","00100","2025-08-28 13:35:07.783342","9dc79970-e5c2-4a23-9c5b-ea255ee9ff8e","surf61"},
+        new String[]{"vanilla.sketch@gmail.com","2025-08-27 14:15:24.290768","00100","2025-08-27 14:15:24.290768","384f8cd7-a909-4f8a-81ff-2476882ef749","vanilla.sk"},
+        new String[]{"velvet.stream29@ssafy.com","2025-08-28 13:39:37.383817","00100","2025-08-28 13:39:37.383817","ee66b298-6ccd-442b-b5eb-1749e5a732ee","velvet.str"},
+        new String[]{"warm.tangerine@daum.net","2025-08-27 14:14:31.679559","00100","2025-08-27 14:14:31.679559","e7704773-8099-458b-b149-d90c372b50b8","warm.tange"}
     );
 
     @Bean
@@ -99,7 +112,7 @@ public class UserInfoSeeder {
     private static LocalDateTime parseFlex(String s) {
         if (s == null) return null;
         try { return LocalDateTime.parse(s, FLEX); }
-        catch (Exception e) { return null; } // 실패 시 호출부에서 now() 대입
+        catch (Exception e) { return null; }
     }
 
     private static String trunc(String s, int max) {

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'insurance_detail_screen.dart';
 import 'benefits_screen.dart';
 import 'all_menu_screen.dart';
+import 'grade_screen.dart';
 
 class MainScreen extends StatefulWidget {
   @override
@@ -11,6 +12,12 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
 
+  // 출석한 날짜 저장
+  static Set<DateTime> attendedDates = {};
+
+  // 현재 표시할 달
+  DateTime currentMonth = DateTime.now();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -19,7 +26,7 @@ class _MainScreenState extends State<MainScreen> {
           ? _buildMainContent()
           : _currentIndex == 1
           ? BenefitsScreen()
-          : AllMenuScreen(), // 여기를 AllMenuScreen()으로 변경
+          : AllMenuScreen(),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         selectedItemColor: Colors.pink,
@@ -44,18 +51,7 @@ class _MainScreenState extends State<MainScreen> {
                   top: 0,
                   child: Container(
                     padding: EdgeInsets.symmetric(horizontal: 4, vertical: 1),
-                    decoration: BoxDecoration(
-                      color: Colors.pink,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      'NEW',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 8,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+
                   ),
                 ),
               ],
@@ -179,7 +175,7 @@ class _MainScreenState extends State<MainScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                '소프트웨어학부, 수료 4학년',
+                                '소프트웨어학부, 졸업생',
                                 style: TextStyle(
                                   color: Colors.white70,
                                   fontSize: 12,
@@ -187,7 +183,7 @@ class _MainScreenState extends State<MainScreen> {
                               ),
                               SizedBox(height: 4),
                               Text(
-                                '김싸피 (21167340)',
+                                '김싸피 (1412345)',
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 20,
@@ -293,7 +289,7 @@ class _MainScreenState extends State<MainScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              '시험 보험 가입하고 돈 받자!',
+                              'The 성적 UP!',
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
@@ -302,7 +298,7 @@ class _MainScreenState extends State<MainScreen> {
                             ),
                             SizedBox(height: 4),
                             Text(
-                              '1학기 반값등록팔미터어 보리가기',
+                              '좋은 성적 받고 돈 받으러 가기',
                               style: TextStyle(
                                 fontSize: 12,
                                 color: Colors.grey[600],
@@ -350,85 +346,11 @@ class _MainScreenState extends State<MainScreen> {
 
             SizedBox(height: 24),
 
-            // 진자출결 섹션
+            // MY메뉴 섹션
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    '진자출결',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
-                    ),
-                  ),
-                  SizedBox(height: 16),
-                  Container(
-                    width: double.infinity,
-                    padding: EdgeInsets.all(40),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Column(
-                      children: [
-                        Container(
-                          width: 80,
-                          height: 80,
-                          decoration: BoxDecoration(
-                            color: Colors.grey[200],
-                            shape: BoxShape.circle,
-                          ),
-                          child: Center(
-                            child: Text(
-                              '!',
-                              style: TextStyle(
-                                fontSize: 40,
-                                color: Colors.grey[400],
-                              ),
-                            ),
-                          ),
-                        ),
-                        SizedBox(height: 16),
-                        Text(
-                          '현재 진행 중인 수업이 없어요.',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.grey[600],
-                          ),
-                        ),
-                        SizedBox(height: 16),
-                        TextButton.icon(
-                          onPressed: () {},
-                          icon: Icon(
-                            Icons.refresh,
-                            size: 18,
-                            color: Colors.grey[600],
-                          ),
-                          label: Text(
-                            '새로고침',
-                            style: TextStyle(
-                              color: Colors.grey[600],
-                              fontSize: 14,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            SizedBox(height: 24),
-
-            // MY메뉴 섹션
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
                     'MY메뉴',
@@ -438,19 +360,117 @@ class _MainScreenState extends State<MainScreen> {
                       color: Colors.black87,
                     ),
                   ),
-                  Container(
-                    width: 36,
-                    height: 36,
-                    decoration: BoxDecoration(
-                      color: Colors.black87,
-                      shape: BoxShape.circle,
-                    ),
-                    child: Center(
-                      child: Icon(
-                        Icons.add,
-                        color: Colors.white,
-                        size: 20,
+                  SizedBox(height: 16),
+                  // MY메뉴 아이콘들
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      _buildMyMenuItem(Icons.grade, '개인성적\n조회', () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => GradeScreen()),
+                        );
+                      }),
+                      _buildMyMenuItem(Icons.search, '급학기성적\n조회', () {}),
+                      _buildMyMenuItem(Icons.credit_card, '디기능카\n등록', () {}),
+                      _buildMyMenuItem(Icons.school, '디기능카\n등록실적', () {}),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+
+            SizedBox(height: 24),
+
+            // 캘린더 섹션
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        '캘린더',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
+                        ),
                       ),
+                      Row(
+                        children: [
+                          IconButton(
+                            onPressed: () {
+                              setState(() {
+                                currentMonth = DateTime(
+                                  currentMonth.year,
+                                  currentMonth.month - 1,
+                                );
+                              });
+                            },
+                            icon: Icon(Icons.chevron_left),
+                          ),
+                          Text(
+                            '${currentMonth.year}.${currentMonth.month.toString().padLeft(2, '0')}',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          IconButton(
+                            onPressed: () {
+                              setState(() {
+                                currentMonth = DateTime(
+                                  currentMonth.year,
+                                  currentMonth.month + 1,
+                                );
+                              });
+                            },
+                            icon: Icon(Icons.chevron_right),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 16),
+                  Container(
+                    padding: EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.05),
+                          blurRadius: 10,
+                          offset: Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      children: [
+                        // 요일 헤더
+                        Row(
+                          children: ['일', '월', '화', '수', '목', '금', '토']
+                              .map((day) => Expanded(
+                            child: Center(
+                              child: Text(
+                                day,
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                  color: day == '일' ? Colors.red : Colors.black87,
+                                ),
+                              ),
+                            ),
+                          ))
+                              .toList(),
+                        ),
+                        SizedBox(height: 8),
+                        // 캘린더 그리드
+                        _buildCalendar(),
+                      ],
                     ),
                   ),
                 ],
@@ -462,6 +482,135 @@ class _MainScreenState extends State<MainScreen> {
         ),
       ),
     );
+  }
+
+  Widget _buildMyMenuItem(IconData icon, String label, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Column(
+        children: [
+          Container(
+            width: 50,
+            height: 50,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 8,
+                  offset: Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Icon(
+              icon,
+              color: Colors.black87,
+              size: 24,
+            ),
+          ),
+          SizedBox(height: 8),
+          Text(
+            label,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 12,
+              color: Colors.black87,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCalendar() {
+    final firstDay = DateTime(currentMonth.year, currentMonth.month, 1);
+    final lastDay = DateTime(currentMonth.year, currentMonth.month + 1, 0);
+    final startDate = firstDay.subtract(Duration(days: firstDay.weekday % 7));
+
+    List<Widget> weeks = [];
+
+    for (int week = 0; week < 6; week++) {
+      List<Widget> days = [];
+
+      for (int day = 0; day < 7; day++) {
+        final date = startDate.add(Duration(days: week * 7 + day));
+        final isCurrentMonth = date.month == currentMonth.month;
+        final isToday = _isSameDay(date, DateTime.now());
+        final isAttended = attendedDates.any((attendedDate) => _isSameDay(attendedDate, date));
+
+        days.add(
+          Expanded(
+            child: GestureDetector(
+              onTap: isCurrentMonth && isToday ? () {
+                setState(() {
+                  if (isAttended) {
+                    attendedDates.removeWhere((attendedDate) => _isSameDay(attendedDate, date));
+                  } else {
+                    attendedDates.add(date);
+                  }
+                });
+              } : null,
+              child: Container(
+                height: 45,
+                margin: EdgeInsets.all(2),
+                decoration: BoxDecoration(
+                  color: isToday ? Colors.blue[100] : Colors.transparent,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Stack(
+                  children: [
+                    Center(
+                      child: Text(
+                        date.day.toString(),
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: isCurrentMonth
+                              ? (isToday ? Colors.blue[700] : Colors.black87)
+                              : Colors.grey[300],
+                          fontWeight: isToday ? FontWeight.bold : FontWeight.normal,
+                        ),
+                      ),
+                    ),
+                    if (isAttended && isCurrentMonth)
+                      Positioned(
+                        bottom: 4,
+                        right: 4,
+                        child: Container(
+                          width: 16,
+                          height: 16,
+                          decoration: BoxDecoration(
+                            color: Colors.amber[600],
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            Icons.monetization_on,
+                            size: 12,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      }
+
+      weeks.add(Row(children: days));
+
+      // 마지막 주가 다음 달이라면 끝
+      if (week == 4 && startDate.add(Duration(days: (week + 1) * 7)).month != currentMonth.month) {
+        break;
+      }
+    }
+
+    return Column(children: weeks);
+  }
+
+  bool _isSameDay(DateTime a, DateTime b) { // 오늘 날짜만 출석 가능
+    return a.year == b.year && a.month == b.month && a.day == b.day;
   }
 
   void _navigateToInsurance(BuildContext context) {
