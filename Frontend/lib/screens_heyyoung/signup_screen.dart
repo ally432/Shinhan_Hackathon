@@ -1,10 +1,7 @@
 import 'dart:convert';
-import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'login_screen.dart';
-
+import 'login_screen.dart'; // LoginScreen import 추가
 
 class SignupScreen extends StatefulWidget {
   @override
@@ -13,8 +10,7 @@ class SignupScreen extends StatefulWidget {
 
 class _SignupScreenState extends State<SignupScreen> {
   final String baseUrl = "http://10.0.2.2:8080";
-  final _scrollController = ScrollController();
-  final TextEditingController _birthdateController = TextEditingController();
+  final _scrollController = ScrollController(); // 스크롤 컨트롤러 추가
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController = TextEditingController();
@@ -110,41 +106,6 @@ class _SignupScreenState extends State<SignupScreen> {
                   textInputAction: TextInputAction.next,
                   decoration: InputDecoration(
                     hintText: '이름을 입력하세요.',
-                    hintStyle: TextStyle(color: Colors.grey[400]),
-                    border: InputBorder.none,
-                    contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                  ),
-                ),
-              ),
-
-              SizedBox(height: 20),
-
-              Text(
-                '생년월일',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.black87,
-                ),
-              ),
-              SizedBox(height: 8),
-              Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.grey[300]!),
-                ),
-                child: TextField(
-                  controller: _birthdateController,
-                  keyboardType: TextInputType.number, // 숫자 키보드
-                  textInputAction: TextInputAction.next,
-                  // 숫자만 입력, 8자리 제한
-                  inputFormatters: [
-                    FilteringTextInputFormatter.digitsOnly,
-                    LengthLimitingTextInputFormatter(8),
-                  ],
-                  decoration: InputDecoration(
-                    hintText: 'YYYYMMDD (8자리)',
                     hintStyle: TextStyle(color: Colors.grey[400]),
                     border: InputBorder.none,
                     contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
@@ -381,13 +342,6 @@ class _SignupScreenState extends State<SignupScreen> {
       return;
     }
 
-    if (_birthdateController.text.length != 8) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('생년월일을 8자리로 입력해주세요.')),
-      );
-      return;
-    }
-
     if (!_emailController.text.contains('@')) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('올바른 이메일 형식을 입력해주세요.')),
@@ -415,7 +369,6 @@ class _SignupScreenState extends State<SignupScreen> {
         body: jsonEncode({
           "email": _emailController.text.trim(),
           "name": _nameController.text.trim(),
-          "birthdate": _birthdateController.text.trim(),
         }),
       );
 
@@ -423,10 +376,6 @@ class _SignupScreenState extends State<SignupScreen> {
 
       if (res.statusCode == 200) {
         final data = jsonDecode(res.body);
-
-        final SharedPreferences prefs = await SharedPreferences.getInstance();
-        await prefs.setString('userName', _nameController.text.trim());
-        await prefs.setString('userBirthdate', _birthdateController.text.trim());
 
         // 성공 다이얼로그 표시
         _showSuccessDialog();
@@ -513,7 +462,6 @@ class _SignupScreenState extends State<SignupScreen> {
     _emailController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
-    _birthdateController.dispose();
     _nameController.dispose();
     super.dispose();
   }

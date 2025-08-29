@@ -26,7 +26,7 @@ class _AccountCreationScreenState extends State<AccountCreationScreen> {
   final TextEditingController _confirmPasswordController = TextEditingController();
 
   bool _isLoading = false;
-  static const String baseUrl = 'http://10.0.2.2:8080';
+  static const String baseUrl = 'http://211.188.50.244:8080';
 
   @override
   Widget build(BuildContext context) {

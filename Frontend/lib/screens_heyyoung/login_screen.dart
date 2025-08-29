@@ -17,7 +17,7 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  static const String baseUrl = 'http://10.0.2.2:8080';
+  static const String baseUrl = 'http://211.188.50.244:8080';
   bool _autoLogin = false;
   bool _isLoading = false;
 

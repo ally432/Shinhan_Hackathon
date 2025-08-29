@@ -16,7 +16,7 @@ class AccountDetailsScreen extends StatefulWidget {
 }
 
 class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
-  static const String baseUrl = 'http://10.0.2.2:8080';
+  static const String baseUrl = 'http://211.188.50.244:8080';
 
   bool _loading = true;
   String? _error;
