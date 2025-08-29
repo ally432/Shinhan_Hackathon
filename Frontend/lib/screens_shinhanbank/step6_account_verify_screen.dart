@@ -14,7 +14,7 @@ class Step6AccountVerifyScreen extends StatefulWidget {
 }
 
 class _Step6AccountVerifyScreenState extends State<Step6AccountVerifyScreen> {
-  static const String baseUrl = 'http://10.0.2.2:8080';
+  static const String baseUrl = 'http://211.188.50.244:8080';
   static const int kAccountNoLen = 16;
   static const String kSelectedAccountNoKey = 'selectedAccountNo';
   final _accountController = TextEditingController();

@@ -6,7 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
-const String baseUrl = 'http://10.0.2.2:8080';
+const String baseUrl = 'http://211.188.50.244:8080';
 
 class AllAccountsScreen extends StatefulWidget {
   const AllAccountsScreen({super.key});
