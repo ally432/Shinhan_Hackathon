@@ -143,27 +143,6 @@ class _AccountSelectionScreenState extends State<AccountSelectionScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 진행 상태 표시
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Text(
-                  '정보입력',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  '1/4',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.grey[600],
-                  ),
-                ),
-              ],
-            ),
-
-            const SizedBox(height: 40),
-
             // 제목
             const Text(
               '어떤 계좌에서 출금할까요?',

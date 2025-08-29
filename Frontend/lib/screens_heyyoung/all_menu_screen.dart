@@ -69,10 +69,11 @@ class _AllMenuScreenState extends State<AllMenuScreen> {
                         shape: BoxShape.circle,
                       ),
                       child: Center(
-                        child: Icon(
-                          Icons.person,
-                          size: 30,
-                          color: Colors.blue[700],
+                        child: Image.asset(
+                          'assets/icons/moli.png',
+                          width: 60,
+                          height: 60,
+                          fit: BoxFit.contain,
                         ),
                       ),
                     ),
@@ -84,7 +85,7 @@ class _AllMenuScreenState extends State<AllMenuScreen> {
                           Row(
                             children: [
                               Text(
-                                '김싸피',
+                                '김몰리',
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
@@ -161,7 +162,7 @@ class _AllMenuScreenState extends State<AllMenuScreen> {
                               borderRadius: BorderRadius.circular(6),
                             ),
                             child: Icon(
-                              Icons.card_giftcard,
+                              Icons.confirmation_num_outlined,
                               color: Colors.green[700],
                               size: 16,
                             ),

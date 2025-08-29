@@ -49,7 +49,6 @@ class _TermsScreenState extends State<TermsScreen> {
             fontSize: 18,
           ),
         ),
-        centerTitle: true,
       ),
       body: Column(
         children: [
@@ -533,12 +532,12 @@ class _TermsScreenState extends State<TermsScreen> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Container(
-                  width: 64,
-                  height: 64,
-                  decoration: BoxDecoration(
-                    color: Color(0xFF4A90E2).withOpacity(0.1),
-                    shape: BoxShape.circle,
-                  ),
+                  // width: 64,
+                  // height: 64,
+                  // decoration: BoxDecoration(
+                  //   color: Color(0xFFFFFFFF).withOpacity(0.1),
+                  //   shape: BoxShape.circle,
+                  // ),
                   child: Icon(
                     Icons.monetization_on_outlined,
                     color: Color(0xFF4A90E2),

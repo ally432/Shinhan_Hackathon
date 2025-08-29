@@ -52,7 +52,6 @@ class _AccountOpeningTermsScreenState extends State<AccountTermsScreen> {
             fontSize: 18,
           ),
         ),
-        centerTitle: true,
       ),
       body: Column(
         children: [
