@@ -1,12 +1,15 @@
+ import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
+import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:Frontend/screens_shinhanbank/step3_confirm_info_screen.dart';
-import 'package:Frontend/screens_shinhanbank/account_creation_screen.dart';  // 새로 생성한 화면
+import 'package:Frontend/screens_shinhanbank/account_creation_screen.dart';
 import 'package:Frontend/widgets/step_layout.dart';
 
 class Step2IdPhotoScreen extends StatefulWidget {
-  final bool isForAccountCreation; // 계좌 개설용인지 구분하는 플래그
+  final bool isForAccountCreation;
 
   const Step2IdPhotoScreen({
     super.key,
@@ -20,39 +23,48 @@ class Step2IdPhotoScreen extends StatefulWidget {
 class _Step2IdPhotoScreenState extends State<Step2IdPhotoScreen> {
   final ImagePicker _picker = ImagePicker();
 
-  // 이미지 선택 로직 (카메라 또는 갤러리)
-  Future<void> _pickImage(ImageSource source) async {
-    try {
-      final pickedFile = await _picker.pickImage(source: source);
+    Future<void> _pickImage(ImageSource source) async {
+      XFile? pickedFile;
+
+      // kDebugMode는 디버그(개발) 모드일 때만 true
+      if (kDebugMode) {
+        final byteData = await rootBundle.load('assets/id_card_dummy.png');
+        final tempDir = await getTemporaryDirectory();
+        final file = await File('${tempDir.path}/temp_id_card.png').writeAsBytes(
+          byteData.buffer.asUint8List(byteData.offsetInBytes, byteData.lengthInBytes),
+        );
+        pickedFile = XFile(file.path);
+      } else {
+        try {
+          pickedFile = await _picker.pickImage(source: source);
+          } catch (e) {
+          if (!mounted) return;
+            ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('사진을 가져오지 못했습니다.\n권한을 확인해주세요.')),
+          );
+        }
+      }
+
       if (pickedFile != null && mounted) {
-        // 계좌 개설용인지에 따라 다른 화면으로 이동
         if (widget.isForAccountCreation) {
-          // 계좌 개설용: 계좌 개설 정보 입력 화면으로
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
               builder: (context) => AccountCreationScreen(
-                imagePath: pickedFile.path,
+              imagePath: pickedFile!.path,
               ),
             ),
           );
         } else {
-          // 기존 로직: 정보 확인 화면으로
-          Navigator.push(
-            context,
+        Navigator.push(
+          context,
             MaterialPageRoute(
               builder: (context) => Step3ConfirmInfoScreen(
-                imagePath: pickedFile.path,
-              ),
+              imagePath: pickedFile!.path,
             ),
-          );
-        }
+          ),
+        );
       }
-    } catch (e) {
-      // 권한 거부 등의 에러가 발생했을 때
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('사진을 가져오지 못했습니다. 권한을 확인해주세요.')),
-      );
     }
   }
 
@@ -60,19 +72,19 @@ class _Step2IdPhotoScreenState extends State<Step2IdPhotoScreen> {
   Widget build(BuildContext context) {
     return StepLayout(
       title: widget.isForAccountCreation ? '신분증 촬영 (계좌 개설용)' : '사진 촬영',
-      onNext: null, // 하단 버튼 사용 안 함
+      onNext: null,
       child: Column(
         children: [
           Text(
             widget.isForAccountCreation
-                ? '계좌 개설을 위해 신분증을\n가이드라인에 맞춰 화면에 꽉 채워주세요.'
-                : '신분증을 가이드라인에 맞춰 화면에 꽉 채워주세요.',
-            style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                ? '계좌 개설을 위해 신분증을 가이드라인에 맞춰 화면에 꽉 채워주세요.'
+                : '신분증을 가이드라인에 맞춰 \n화면에 꽉 채워주세요.',
+            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 32),
 
-          // 계좌 개설용일 때 안내 메시지 추가
+          // 계좌 개설용 안내 메세지
           if (widget.isForAccountCreation) ...[
             Container(
               padding: const EdgeInsets.all(16),
