@@ -38,8 +38,7 @@ class _HomeScreenState extends State<HomeScreen> {
           padding: EdgeInsets.all(8.0),
           child: CircleAvatar(child: Text('S')),
         ),
-        title:
-          const Text('Super', style: TextStyle(fontWeight: FontWeight.bold)),
+        title: const Text('Super SOL', style: TextStyle(fontWeight: FontWeight.bold)),
         actions: [
           IconButton(onPressed: () {}, icon: const Icon(Icons.search)),
           IconButton(onPressed: () {}, icon: const Icon(Icons.notifications_none)),
@@ -300,7 +299,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return Account(
       bankName: '신한은행',
       accountName: '쏠편한 입출금통장 (저축예금)',
-      accountNumber: '111-123-123456',
+      accountNumber: '110-500-651356',
       balance: 251094,
       productName: '시험 보험 계좌',
       openingDate: '2025.08.17',
