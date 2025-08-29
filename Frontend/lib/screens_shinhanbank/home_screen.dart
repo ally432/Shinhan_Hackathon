@@ -251,7 +251,7 @@ class _HomeScreenState extends State<HomeScreen> {
     if (!hasKeyword) return;
 
     // 만기일이 오늘인지 확인 (형식: yyyy.MM.dd)
-    final todayStr = DateFormat('yyyy.MM.dd').format(DateTime.now());
+    final todayStr = DateFormat('yyyy.MM.dd').format(DateTime.now().toUtc().add(const Duration(hours: 9)));
     if (acc.maturityDate.isEmpty || acc.maturityDate == '-') return;
     if (acc.maturityDate != todayStr) return;
 

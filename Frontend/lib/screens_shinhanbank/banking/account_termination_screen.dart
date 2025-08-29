@@ -293,7 +293,7 @@ class _AccountTerminationScreenState extends State<AccountTerminationScreen> {
 
                 // ✅ 추가(선택): 보너스 반영 시 최종액
                 _buildInfoRow(
-                  '보너스 반영 최종액',
+                  '만기 시 예상 최종액',
                   (_loading || _loadingBonus)
                       ? '계산 중…'
                       : '${_currency.format(_calcFinalWithBonus())}원',
