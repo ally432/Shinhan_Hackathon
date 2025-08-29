@@ -90,7 +90,7 @@ public class RestTemplateOpenDeposite {
      Map<String, Object> payload = new LinkedHashMap<>();
      payload.put("Header", Header);
      payload.put("withdrawalAccountNo", withdrawalAccountNo);
-     payload.put("accountTypeUniqueNo", "088-2-bfa47ec4b77748");//088-2-bfa47ec4b77748
+     payload.put("accountTypeUniqueNo", "088-2-e7660d3b5d6a45");//088-2-bfa47ec4b77748
      payload.put("depositBalance", depositBalance);
 
      try {
