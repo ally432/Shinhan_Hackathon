@@ -199,6 +199,7 @@ class _SignupScreenState extends State<SignupScreen> {
                   color: Colors.black87,
                 ),
               ),
+
               SizedBox(height: 8),
               Container(
                 decoration: BoxDecoration(

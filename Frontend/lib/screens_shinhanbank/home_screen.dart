@@ -38,7 +38,8 @@ class _HomeScreenState extends State<HomeScreen> {
           padding: EdgeInsets.all(8.0),
           child: CircleAvatar(child: Text('S')),
         ),
-        title: const Text('Super SOL', style: TextStyle(fontWeight: FontWeight.bold)),
+        title:
+          const Text('Super', style: TextStyle(fontWeight: FontWeight.bold)),
         actions: [
           IconButton(onPressed: () {}, icon: const Icon(Icons.search)),
           IconButton(onPressed: () {}, icon: const Icon(Icons.notifications_none)),
