@@ -105,7 +105,7 @@ class _AccountOpeningTermsScreenState extends State<AccountTermsScreen> {
 
                         // 상품명
                         const Text(
-                          '신한 SOL 수시입출금통장',
+                          '쏠편한 입출금통장',
                           style: TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
@@ -142,16 +142,17 @@ class _AccountOpeningTermsScreenState extends State<AccountTermsScreen> {
                                   Column(
                                     children: [
                                       const Icon(
-                                        Icons.account_balance_wallet,
+                                        Icons.money_off,
                                         color: Colors.white,
                                         size: 24,
                                       ),
                                       const SizedBox(height: 8),
                                       Text(
-                                        '연회비',
+                                        '수수료',
                                         style: TextStyle(
                                           color: Colors.white.withOpacity(0.9),
                                           fontSize: 12,
+                                          fontWeight: FontWeight.bold,
                                         ),
                                       ),
                                       const Text(
@@ -181,6 +182,7 @@ class _AccountOpeningTermsScreenState extends State<AccountTermsScreen> {
                                         '입출금',
                                         style: TextStyle(
                                           color: Colors.white.withOpacity(0.9),
+                                          fontWeight: FontWeight.bold,
                                           fontSize: 12,
                                         ),
                                       ),
@@ -206,7 +208,7 @@ class _AccountOpeningTermsScreenState extends State<AccountTermsScreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            _buildFeatureTag('연회비 없음'),
+                            _buildFeatureTag('수수료 없음'),
                             const SizedBox(width: 8),
                             _buildFeatureTag('자유입출금'),
                             const SizedBox(width: 8),
@@ -230,16 +232,16 @@ class _AccountOpeningTermsScreenState extends State<AccountTermsScreen> {
                               Text(
                                 '계좌 개설 혜택',
                                 style: TextStyle(
-                                  color: const Color(0xFF4A90E2),
-                                  fontSize: 16,
+                                  color: Colors.black87,
+                                  fontSize: 18,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
                               const SizedBox(height: 8),
                               Text(
-                                '• 계좌 개설 후 30일간 타행 이체 수수료 면제\n• 모바일뱅킹 이용료 3개월 면제',
+                                '• 모바일 이체수수료 무제한 면제\n• 신한은행 인출수수료 면제\n• 자동이체 수수료 면제',
                                 style: TextStyle(
-                                  color: const Color(0xFF4A90E2),
+                                  color: Colors.black87,
                                   fontSize: 14,
                                 ),
                                 textAlign: TextAlign.center,

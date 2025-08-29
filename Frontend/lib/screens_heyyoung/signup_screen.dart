@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
+import 'login_screen.dart'; // LoginScreen import 추가
 
 class SignupScreen extends StatefulWidget {
   @override
@@ -432,7 +433,10 @@ class _SignupScreenState extends State<SignupScreen> {
             ElevatedButton(
               onPressed: () {
                 Navigator.of(context).pop(); // 다이얼로그 닫기
-                Navigator.of(context).pop(); // 회원가입 화면 닫고 로그인 화면으로 돌아가기
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => const LoginScreen()),
+                );
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.blue[600],
