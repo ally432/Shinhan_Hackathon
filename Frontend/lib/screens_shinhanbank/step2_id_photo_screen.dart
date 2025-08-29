@@ -1,29 +1,29 @@
  import 'package:flutter/foundation.dart';
-  import 'package:flutter/services.dart';
-  import 'package:path_provider/path_provider.dart';
-  import 'dart:io';
-  import 'package:flutter/material.dart';
-  import 'package:image_picker/image_picker.dart';
-  import 'package:Frontend/screens_shinhanbank/step3_confirm_info_screen.dart';
-  import 'package:Frontend/screens_shinhanbank/account_creation_screen.dart';
-  import 'package:Frontend/widgets/step_layout.dart';
+import 'package:flutter/services.dart';
+import 'package:path_provider/path_provider.dart';
+import 'dart:io';
+import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:Frontend/screens_shinhanbank/step3_confirm_info_screen.dart';
+import 'package:Frontend/screens_shinhanbank/account_creation_screen.dart';
+import 'package:Frontend/widgets/step_layout.dart';
 
-  class Step2IdPhotoScreen extends StatefulWidget {
-    final bool isForAccountCreation;
+class Step2IdPhotoScreen extends StatefulWidget {
+  final bool isForAccountCreation;
 
-    const Step2IdPhotoScreen({
-      super.key,
-      this.isForAccountCreation = false,
-    });
+  const Step2IdPhotoScreen({
+    super.key,
+    this.isForAccountCreation = false,
+  });
 
-    @override
-    State<Step2IdPhotoScreen> createState() => _Step2IdPhotoScreenState();
-  }
+  @override
+  State<Step2IdPhotoScreen> createState() => _Step2IdPhotoScreenState();
+}
 
-  class _Step2IdPhotoScreenState extends State<Step2IdPhotoScreen> {
-    final ImagePicker _picker = ImagePicker();
+class _Step2IdPhotoScreenState extends State<Step2IdPhotoScreen> {
+  final ImagePicker _picker = ImagePicker();
 
-      Future<void> _pickImage(ImageSource source) async {
+    Future<void> _pickImage(ImageSource source) async {
       XFile? pickedFile;
 
       // kDebugMode는 디버그(개발) 모드일 때만 true
@@ -40,7 +40,7 @@
           } catch (e) {
           if (!mounted) return;
             ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('사진을 가져오지 못했습니다. 권한을 확인해주세요.')),
+            const SnackBar(content: Text('사진을 가져오지 못했습니다.\n권한을 확인해주세요.')),
           );
         }
       }
@@ -77,9 +77,9 @@
         children: [
           Text(
             widget.isForAccountCreation
-                ? '계좌 개설을 위해 신분증을\n가이드라인에 맞춰 화면에 꽉 채워주세요.'
-                : '신분증을 가이드라인에 맞춰 화면에 꽉 채워주세요.',
-            style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                ? '계좌 개설을 위해 신분증을 가이드라인에 맞춰 화면에 꽉 채워주세요.'
+                : '신분증을 가이드라인에 맞춰 \n화면에 꽉 채워주세요.',
+            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 32),
