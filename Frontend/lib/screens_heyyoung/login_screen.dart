@@ -17,7 +17,7 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  static const String baseUrl = 'http://10.0.2.2:8080';
+  static const String baseUrl = 'http://211.188.50.244:8080';
   bool _autoLogin = false;
   bool _isLoading = false;
 
@@ -133,13 +133,13 @@ class _LoginScreenState extends State<LoginScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  GestureDetector(onTap: () {}, child: Text('ID찾기', style: TextStyle(fontSize: 14, color: Colors.grey[600], decoration: TextDecoration.underline))),
+                  GestureDetector(onTap: () {}, child: Text('ID찾기', style: TextStyle(fontSize: 14, color: Colors.grey[600]))),
                   Container(margin: const EdgeInsets.symmetric(horizontal: 16), width: 1, height: 12, color: Colors.grey[400]),
-                  GestureDetector(onTap: () {}, child: Text('PW찾기', style: TextStyle(fontSize: 14, color: Colors.grey[600], decoration: TextDecoration.underline))),
+                  GestureDetector(onTap: () {}, child: Text('PW찾기', style: TextStyle(fontSize: 14, color: Colors.grey[600]))),
                   Container(margin: const EdgeInsets.symmetric(horizontal: 16), width: 1, height: 12, color: Colors.grey[400]),
                   GestureDetector(
                     onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => SignupScreen())),
-                    child: Text('회원가입', style: TextStyle(fontSize: 14, color: Colors.grey[600], decoration: TextDecoration.underline)),
+                    child: Text('회원가입', style: TextStyle(fontSize: 14, color: Colors.grey[600])),
                   ),
                 ],
               ),
@@ -612,11 +612,11 @@ class _LoginScreenState extends State<LoginScreen> {
             textAlign: TextAlign.center,
             style: TextStyle(fontSize: 16),
           ),
+          actionsAlignment: MainAxisAlignment.center,
           actions: [
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
-                // 취소 시 다시 로그인 화면으로
               },
               child: Text('취소', style: TextStyle(color: Colors.grey[600])),
             ),

@@ -14,7 +14,7 @@ class Step8TermsAgreeScreen extends StatefulWidget {
 }
 
 class _Step8TermsAgreeScreenState extends State<Step8TermsAgreeScreen> {
-  static const String baseUrl = 'http://10.0.2.2:8080'; // ← 추가
+  static const String baseUrl = 'http://211.188.50.244:8080'; // ← 추가
   bool _submitting = false;
 
   bool _allAgreed = false;
