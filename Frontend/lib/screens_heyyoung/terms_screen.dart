@@ -540,9 +540,9 @@ class _TermsScreenState extends State<TermsScreen> {
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
-                    Icons.login,
+                    Icons.monetization_on_outlined,
                     color: Color(0xFF4A90E2),
-                    size: 32,
+                    size: 50,
                   ),
                 ),
                 SizedBox(height: 16),
