@@ -31,7 +31,9 @@ class _SetPeriodScreenState extends State<SetPeriodScreen> {
     final isComplete = _selectedPeriod != null;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('예금 가입 (2/5)')),
+      appBar: AppBar(
+          title: const Text('예금 가입')
+      ),
       body: Padding(
         padding: const EdgeInsets.all(24.0),
         child: Column(
@@ -51,24 +53,19 @@ class _SetPeriodScreenState extends State<SetPeriodScreen> {
               }).toList(),
             ),
             const Spacer(),
-            Row(
-              children: [
-                Expanded(
-                    child: OutlinedButton(
-                      onPressed: () => Navigator.pop(context),
-                      style: OutlinedButton.styleFrom(minimumSize: const Size(0, 50), side: BorderSide(color: Colors.grey[300]!)),
-                      child: const Text('이전', style: TextStyle(color: Colors.black)),
-                    )
+
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: isComplete ? _saveAndNavigate : null,
+                style: ElevatedButton.styleFrom(
+                  minimumSize: const Size(0, 50),
+                  backgroundColor: Colors.blue[800],
+                  disabledBackgroundColor: Colors.grey[300],
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                    child: ElevatedButton(
-                      onPressed: isComplete ? _saveAndNavigate : null,
-                      style: ElevatedButton.styleFrom(minimumSize: const Size(0, 50), backgroundColor: Colors.blue[800], disabledBackgroundColor: Colors.grey[300]),
-                      child: const Text('다음', style: TextStyle(color: Colors.white, fontSize: 16)),
-                    )
-                ),
-              ],
+                child: const Text('다음', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+              ),
             ),
           ],
         ),
@@ -80,6 +77,7 @@ class _SetPeriodScreenState extends State<SetPeriodScreen> {
     return ChoiceChip(
       label: SizedBox(width: double.infinity, child: Center(child: Text(label))),
       selected: selected, onSelected: onSelected,
+      showCheckmark: false,
       padding: const EdgeInsets.symmetric(vertical: 12),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       selectedColor: Colors.blue[100], backgroundColor: Colors.white,

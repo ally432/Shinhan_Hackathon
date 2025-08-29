@@ -43,7 +43,9 @@ class _SetRecommenderScreenState extends State<SetRecommenderScreen> {
     final isComplete = _recommenderController.text.isNotEmpty || _noRecommenderSelected;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('예금 가입 (4/5)')),
+      appBar: AppBar(
+          title: const Text('예금 가입')
+      ),
       body: Padding(
         padding: const EdgeInsets.all(24.0),
         child: Column(
@@ -76,12 +78,18 @@ class _SetRecommenderScreenState extends State<SetRecommenderScreen> {
               ),
             ),
             const Spacer(),
-            Row(
-              children: [
-                Expanded(child: OutlinedButton(onPressed: () => Navigator.pop(context), child: const Text('이전'))),
-                const SizedBox(width: 12),
-                Expanded(child: ElevatedButton(onPressed: isComplete ? _saveAndNavigate : null, child: const Text('다음'))),
-              ],
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: isComplete ? _saveAndNavigate : null,
+                style: ElevatedButton.styleFrom(
+                  minimumSize: const Size(0, 50),
+                  backgroundColor: Colors.blue[800],
+                  disabledBackgroundColor: Colors.grey[300],
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+                child: const Text('다음', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+              ),
             ),
           ],
         ),
@@ -92,6 +100,7 @@ class _SetRecommenderScreenState extends State<SetRecommenderScreen> {
   Widget _buildChoiceChip({required String label, required bool selected, required Function(bool) onSelected}) {
     return ChoiceChip(
       label: SizedBox(width: double.infinity, child: Center(child: Text(label))),
+      showCheckmark: false,
       selected: selected, onSelected: onSelected,
       padding: const EdgeInsets.symmetric(vertical: 12),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),

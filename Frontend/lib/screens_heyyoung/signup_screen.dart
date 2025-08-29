@@ -11,7 +11,7 @@ class SignupScreen extends StatefulWidget {
 }
 
 class _SignupScreenState extends State<SignupScreen> {
-  final String baseUrl = "http://10.0.2.2:8080";
+  final String baseUrl = "http://211.188.50.244:8080";
   final _scrollController = ScrollController(); // 스크롤 컨트롤러 추가
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();

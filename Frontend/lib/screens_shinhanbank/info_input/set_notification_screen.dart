@@ -29,7 +29,9 @@ class _SetNotificationScreenState extends State<SetNotificationScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('예금 가입 (5/5)')),
+      appBar: AppBar(
+          title: const Text('예금 가입')
+      ),
       body: Padding(
         padding: const EdgeInsets.all(24.0),
         child: Column(
@@ -60,12 +62,19 @@ class _SetNotificationScreenState extends State<SetNotificationScreen> {
               ),
             ),
             const Spacer(),
-            Row(
-              children: [
-                Expanded(child: OutlinedButton(onPressed: () => Navigator.pop(context), child: const Text('이전'))),
-                const SizedBox(width: 12),
-                Expanded(child: ElevatedButton(onPressed: _saveAndNavigate, child: const Text('다음'))),
-              ],
+
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: _saveAndNavigate,
+                style: ElevatedButton.styleFrom(
+                  minimumSize: const Size(0, 50),
+                  backgroundColor: Colors.blue[800],
+                  disabledBackgroundColor: Colors.grey[300],
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+                child: const Text('다음', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+              ),
             ),
           ],
         ),
