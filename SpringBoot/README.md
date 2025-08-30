@@ -1,4 +1,4 @@
-<img width="142" height="365" alt="image" src="https://github.com/user-attachments/assets/b7dc635f-ec39-44cc-9a99-1a67b190162b" /># 📌 Backend README
+# 📌 Backend README
 
 ## 1) 환경 / 툴 버전
 
