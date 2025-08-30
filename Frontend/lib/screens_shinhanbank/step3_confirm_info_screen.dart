@@ -84,7 +84,7 @@ class _Step3ConfirmInfoScreenState extends State<Step3ConfirmInfoScreen> {
               File(widget.imagePath),
               width: double.infinity,
               height: 230,
-              fit: BoxFit.cover,
+              fit: BoxFit.contain,
             ),
           ),
           const SizedBox(height: 24),

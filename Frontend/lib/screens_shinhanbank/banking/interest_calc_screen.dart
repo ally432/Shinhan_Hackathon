@@ -165,10 +165,9 @@ class _InterestCalcScreenState extends State<InterestCalcScreen>
     // 개설일 ~ 오늘 경과일 (최소 1일, 최대 365일 가정)
     final open = _parseAnyDate(widget.account.openingDate);
     final today = DateTime.now().toUtc().add(const Duration(hours: 9));
-    int days = 1;
+    int days = 0;
     if (open != null) {
       days = today.difference(open).inDays;
-      if (days < 1) days = 1;
       if (days > 365) days = 365;
     }
 

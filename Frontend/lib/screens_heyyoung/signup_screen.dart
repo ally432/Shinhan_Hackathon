@@ -425,9 +425,9 @@ class _SignupScreenState extends State<SignupScreen> {
       return;
     }
 
-    if (_phoneNumberController.text.length != 11) {
+    if (_phoneNumberController.text.length != 11 || !_phoneNumberController.text.contains('010')) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('숫자만 입력해주세요')),
+        const SnackBar(content: Text('올바른 형식으로 입력해주세요.')),
       );
       return;
     }

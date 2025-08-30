@@ -284,11 +284,11 @@ class _Step5GoalSettingScreenState extends State<Step5GoalSettingScreen> {
           : Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('달성하고 싶은 학기별 목표 학점을 설정해주세요.',
-              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+          const Text('달성하고 싶은 학기별 목표 학점을 \n설정해 주세요.',
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
           const SizedBox(height: 24),
           _buildGradeTable(),
-          const SizedBox(height: 24),
+          const SizedBox(height: 30),
           _buildDropdown('1학기 목표 학점', _semester1Goal, (v) {
             setState(() => _semester1Goal = v);
             _validateInput();
@@ -309,7 +309,7 @@ class _Step5GoalSettingScreenState extends State<Step5GoalSettingScreen> {
     child: const Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('성적에 따른 차등 우대금리 (연 단위)', style: TextStyle(fontWeight: FontWeight.bold)),
+        Text('성적에 따른 차등 우대금리 (연 단위)', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
         SizedBox(height: 8),
         _RateRow('4.3 ~ 4.5', '+0.15%'),
         Divider(),

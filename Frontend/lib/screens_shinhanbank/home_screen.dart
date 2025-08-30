@@ -63,13 +63,17 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Column(
           children: [
             const SizedBox(height: 24),
-            _buildSectionHeader(
-              context: context,
-              title: '은행',
-              onPressed: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => const AllAccountsScreen()));
-              },
+            Padding(
+              padding: const EdgeInsets.only(left: 8.0), // 👈 원하는 만큼 왼쪽 여백을 줍니다. (예: 8)
+              child: _buildSectionHeader(
+                context: context,
+                title: '대표 계좌',
+                onPressed: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => const AllAccountsScreen()));
+                },
+              ),
             ),
+
             const SizedBox(height: 12),
             InkWell(
               onTap: () {
@@ -93,15 +97,15 @@ class _HomeScreenState extends State<HomeScreen> {
                       children: [
                         const Icon(Icons.account_balance, color: Colors.white, size: 20),
                         const SizedBox(width: 8),
-                        Text(_mainAccount!.accountName, style: const TextStyle(color: Colors.white, fontSize: 16)),
+                        Text(_mainAccount!.accountName, style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
                       ],
                     ),
                     const SizedBox(height: 4),
                     Padding(
-                      padding: const EdgeInsets.only(left: 28.0),
+                      padding: const EdgeInsets.only(left: 30.0),
                       child: Text(_mainAccount!.accountNumber, style: TextStyle(color: Colors.blue[100], fontSize: 14)),
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 11),
                     Align(
                       alignment: Alignment.centerRight,
                       child: Text(
@@ -168,7 +172,7 @@ class _HomeScreenState extends State<HomeScreen> {
           _mainAccount = _mapSavingsToAccount(savings);
           _loading = false;
         });
-        _maybeShowMaturityPopup(); // ✅ 예금 선택 시 조건부 팝업
+        // _maybeShowMaturityPopup(); // 기존 코드
         return;
       }
 
@@ -179,21 +183,33 @@ class _HomeScreenState extends State<HomeScreen> {
           _mainAccount = _mapDemandToAccount(demand);
           _loading = false;
         });
-        return; // 수시입출금은 팝업 없음
+        return;
       }
 
       // 3) 둘 다 없으면 임의
       setState(() { _mainAccount = _fallbackAccount(); _loading = false; });
+
     } catch (e) {
       setState(() {
         _error = '계좌 정보를 불러오지 못했습니다: $e';
         _mainAccount = _fallbackAccount();
         _loading = false;
       });
+    } finally {
+      if (mounted) {
+        final prefs = await SharedPreferences.getInstance();
+        final bool justLoggedIn = prefs.getBool('justLoggedIn') ?? false;
+
+        if (justLoggedIn) {
+          // Popup flag 있으면 팝업 발생
+          _maybeShowMaturityPopup();
+          await prefs.remove('justLoggedIn');
+        }
+      }
     }
   }
 
-  /// 예금(시험보험 등) 첫 번째 계좌 반환
+  // 예금(시험보험 등) 첫 번째 계좌 반환
   Future<Map<String, dynamic>?> _fetchSavings(String userKey) async {
     final uri = Uri.parse('$baseUrl/deposit/findSavingsDeposit')
         .replace(queryParameters: {'userKey': userKey});
@@ -209,7 +225,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return (first is Map) ? Map<String, dynamic>.from(first) : null;
   }
 
-  /// 수시입출금(입출금 통장) 첫 번째 계좌 반환
+  // 수시입출금(입출금 통장) 첫 번째 계좌 반환
   Future<Map<String, dynamic>?> _fetchDemand(String userKey) async {
     final uri = Uri.parse('$baseUrl/deposit/findOpenDeposit')
         .replace(queryParameters: {'userKey': userKey});
@@ -309,7 +325,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return Account(
       bankName: '신한은행',
       accountName: '쏠편한 입출금통장 (저축예금)',
-      accountNumber: '110-500-651356',
+      accountNumber: '111-555-123123',
       balance: 251094,
       productName: '시험 보험 계좌',
       openingDate: '2025.08.17',
