@@ -125,7 +125,7 @@ class _TransferFundsScreenState extends State<TransferFundsScreen> {
       } else {
         Navigator.pushAndRemoveUntil(
           context,
-          MaterialPageRoute(builder: (_) => const fail.HomeFailScreen()),
+          MaterialPageRoute(builder: (_) => const fail.HomeScreen()),
               (route) => false,
         );
       }

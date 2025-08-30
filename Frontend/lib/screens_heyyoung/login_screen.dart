@@ -1,15 +1,11 @@
 import 'package:flutter/material.dart';
 import '../screens_shinhanbank/home_screen.dart';
-import '../screens_shinhanbank/home_screen_fail.dart';
-import '../widgets/custom_dialogs.dart';
 import 'signup_screen.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:Frontend/screens_shinhanbank/account_selection_screen.dart';
 import '../screens_shinhanbank/account_terms_screen.dart';
-import 'dart:convert';
-import 'package:http/http.dart' as http;
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -29,65 +25,6 @@ class _LoginScreenState extends State<LoginScreen> {
   void initState() {
     super.initState();
     _forceLogoutOnColdStart();
-  }
-
-  int _mainAccount = 0; // 0: 만기 아님, 1: 목표 달성, 2: 미달
-
-  Future<void> fetchMaturityFlag(String email) async {
-    final uri = Uri.parse('http://<BACKEND_HOST>:8080/deposit/maturity-flag?email=$email');
-    final res = await http.get(uri);
-    if (res.statusCode == 200) {
-      final json = jsonDecode(res.body);
-      setState(() {
-        _mainAccount = (json['maturity'] ?? 0) as int;
-      });
-    } else {
-      // 통신 오류 시 기본값 유지
-      setState(() { _mainAccount = 0; });
-    }
-  }
-
-  int _maturityFlag = 0; // 0: 만기 아님, 1: 목표 달성, 2: 미달
-
-  Future<void> _fetchMaturityFlagAndMaybePopup(String email) async {
-    try {
-      final uri = Uri.parse('$baseUrl/deposit/maturity-flag')
-          .replace(queryParameters: {'email': email});
-      final res = await http.get(uri).timeout(const Duration(seconds: 5));
-      if (!mounted) return;
-
-      if (res.statusCode == 200) {
-        final json = jsonDecode(res.body) as Map<String, dynamic>;
-        final flag = (json['maturity'] ?? 0) as int;
-        setState(() => _maturityFlag = flag);
-
-        if (flag == 1) {
-          await showCustomDialog(
-            context: context,
-            title: '🎉  목표 달성 성공!',
-            content: '성적계좌가 만기되었습니다. 우대 금리가 적용된 최종 금액을 확인해보세요!',
-            onConfirm: () {
-              Navigator.pop(context);
-              Navigator.push(context, MaterialPageRoute(builder: (_) => const HomeScreen()));
-            },
-          );
-        } else if (flag == 2) {
-          await showCustomDialog(
-            context: context,
-            title: '다시 열심히 해보자~',
-            content: '성적계좌가 만기되었습니다. 우대 금리가 적용된 최종 금액을 확인해보세요!',
-            onConfirm: () {
-              Navigator.pop(context);
-              Navigator.push(context, MaterialPageRoute(builder: (_) => const HomeFailScreen()));
-            },
-          );
-        }
-      } else {
-        // 실패 시는 조용히 패스 (팝업 없음)
-      }
-    } catch (_) {
-      // 네트워크 오류 등도 조용히 패스
-    }
   }
 
   Future<void> _forceLogoutOnColdStart() async {
@@ -423,9 +360,6 @@ class _LoginScreenState extends State<LoginScreen> {
     final prefs = await SharedPreferences.getInstance();
 
     final userKey = prefs.getString('userKey') ?? '';
-
-    final email = _emailController.text.trim();
-
     if (userKey.isEmpty) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -435,9 +369,10 @@ class _LoginScreenState extends State<LoginScreen> {
     }
 
     try {
+      // 두 API 병렬 호출
       final results = await Future.wait<bool>([
-        _hasDemandDeposit(userKey),
-        _hasSavingsDeposit(userKey),
+        _hasDemandDeposit(userKey),  // 수시입출금 계좌 존재 여부
+        _hasSavingsDeposit(userKey), // 예금(시험보험 등) 존재 여부
       ]);
 
       final hasDemand = results[0];
@@ -446,26 +381,141 @@ class _LoginScreenState extends State<LoginScreen> {
       if (!mounted) return;
 
       if (!hasDemand) {
+        // 수시입출금 계좌가 없으면 → 개설 유도 (가입 페이지로 이동하는 기존 다이얼로그)
         _showAccountCreationDialog();
         return;
       }
 
       if (hasDemand && hasSavings) {
-        // 📌 먼저 만기/목표 달성 팝업을 시도한다.
-        await _fetchMaturityFlagAndMaybePopup(email);
-        if (!mounted) return;
-
-        // 팝업이 떴다면 onConfirm에서 HomeScreen으로 이동했음 → 여기서 종료
-        if (_maturityFlag == 1 || _maturityFlag == 2) return;
-
-        // 팝업이 없었다면 기존 '알림' 다이얼로그 + 홈 이동
+        // 둘 다 존재 → 팝업만 띄우고, 가입(개설) 페이지로는 절대 안 감
         await showDialog(
           context: context,
           barrierDismissible: false,
-          builder: (_) => AccountSelectionScreen(),
+          builder: (_) => Dialog(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            elevation: 16,
+            child: Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(20),
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Colors.white,
+                    Colors.blue.shade50,
+                  ],
+                ),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // 아이콘
+                  Container(
+                    width: 64,
+                    height: 64,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          Colors.orange.shade400,
+                          Colors.orange.shade600,
+                        ],
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.orange.shade200,
+                          blurRadius: 12,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: const Icon(
+                      Icons.info_outline,
+                      color: Colors.white,
+                      size: 32,
+                    ),
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  // 제목
+                  const Text(
+                    '알림',
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                    ),
+                  ),
+
+                  const SizedBox(height: 12),
+
+                  // 내용
+                  const Text(
+                    '수시입출금 계좌와 예금이\n이미 모두 존재합니다.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black54,
+                      height: 1.5,
+                    ),
+                  ),
+
+                  const SizedBox(height: 24),
+
+                  // 버튼
+                  Container(
+                    width: double.infinity,
+                    height: 50,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(25),
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          Colors.blue.shade400,
+                          Colors.blue.shade600,
+                        ],
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.blue.shade200,
+                          blurRadius: 8,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(25),
+                        onTap: () => Navigator.of(context).pop(),
+                        child: const Center(
+                          child: Text(
+                            '확인',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
         );
 
+        // 확인 후엔 홈/선택 화면 등으로만 이동 (가입 페이지 X)
         if (!mounted) return;
+        final prefs = await SharedPreferences.getInstance();
         await prefs.setBool('justLoggedIn', true);
         Navigator.pushAndRemoveUntil(
           context,
@@ -475,7 +525,10 @@ class _LoginScreenState extends State<LoginScreen> {
         return;
       }
 
-      // 수시입출금만 있고 예금은 없을 때
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('justLoggedIn', true);
+
+      // 수시입출금만 있고 예금은 없을 때: 가입페이지로 가지 말고 사용 가능한 화면으로 이동
       Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(builder: (_) => const AccountSelectionScreen()),
@@ -486,6 +539,7 @@ class _LoginScreenState extends State<LoginScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('계좌 확인 중 오류: $e')),
       );
+      // 오류 시에도 가입(개설) 페이지로는 가지 않도록, 안전하게 선택 화면으로 보냄
       Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(builder: (_) => const AccountSelectionScreen()),
@@ -596,6 +650,47 @@ class _LoginScreenState extends State<LoginScreen> {
       },
     );
   }
+
+  /* 만기되었음을 알리는 팝업
+  void _maybeShowMaturityPopup() {
+    if (!mounted || _mainAccount == null) return;
+    final acc = _mainAccount!;
+
+    // 수시입출금은 제외 (우린 예금만 체크)
+    final isSavings = acc.productName != '수시입출금';
+    if (!isSavings) return;
+
+    // '시험/성적' 키워드가 계좌명에 포함될 때만
+    final hasKeyword = acc.productName.contains('시험') ||
+        acc.productName.contains('성적') ||
+        acc.accountName.contains('시험') ||
+        acc.accountName.contains('성적');
+    if (!hasKeyword) return;
+
+    // 만기일이 오늘인지 확인 (형식: yyyy.MM.dd)
+    final todayStr = DateFormat('yyyy.MM.dd').format(DateTime.now().toUtc().add(const Duration(hours: 9)));
+    if (acc.maturityDate.isEmpty || acc.maturityDate == '-') return;
+    if (acc.maturityDate != todayStr) return;
+
+    // 살짝 지연 후 팝업 (UI 안정)
+    Future.delayed(const Duration(milliseconds: 300), () {
+      if (!mounted) return;
+      showCustomDialog(
+        context: context,
+        title: '🎉 목표 달성 성공!',
+        content: '성적계좌가 만기되었습니다. 우대 금리가 적용된 최종 금액을 확인해보세요!',
+        onConfirm: () {
+          Navigator.pop(context);
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => AccountDetailsScreen(account: acc)),
+          );
+        },
+      );
+    });
+  }
+  */
+
 
   /* 실제 서버 연동 시 사용할 코드*/
   Future<bool> _checkSavingsAccountFromServer() async {
