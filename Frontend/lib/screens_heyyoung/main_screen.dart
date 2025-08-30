@@ -511,6 +511,88 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 
+  // Widget _buildCalendar() {
+  //   final firstDay = DateTime(currentMonth.year, currentMonth.month, 1);
+  //   final lastDay = DateTime(currentMonth.year, currentMonth.month + 1, 0);
+  //   final startDate = firstDay.subtract(Duration(days: firstDay.weekday % 7));
+  //
+  //   List<Widget> weeks = [];
+  //
+  //   for (int week = 0; week < 6; week++) {
+  //     List<Widget> days = [];
+  //
+  //     for (int day = 0; day < 7; day++) {
+  //       final date = startDate.add(Duration(days: week * 7 + day));
+  //       final isCurrentMonth = date.month == currentMonth.month;
+  //       final isToday = _isSameDay(date, DateTime.now());
+  //       final isAttended = attendedDates.any((attendedDate) => _isSameDay(attendedDate, date));
+  //
+  //       days.add(
+  //         Expanded(
+  //           child: GestureDetector(
+  //             onTap: isCurrentMonth && isToday ? () {
+  //               setState(() {
+  //                 if (isAttended) {
+  //                   attendedDates.removeWhere((attendedDate) => _isSameDay(attendedDate, date));
+  //                 } else {
+  //                   attendedDates.add(date);
+  //                 }
+  //               });
+  //             } : null,
+  //             child: Container(
+  //               height: 45,
+  //               margin: EdgeInsets.all(2),
+  //               decoration: BoxDecoration(
+  //                 color: isToday ? Colors.blue[100] : Colors.transparent,
+  //                 borderRadius: BorderRadius.circular(8),
+  //               ),
+  //               child: Stack(
+  //                 children: [
+  //                   Center(
+  //                     child: Text(
+  //                       date.day.toString(),
+  //                       style: TextStyle(
+  //                         fontSize: 14,
+  //                         color: isCurrentMonth
+  //                             ? (isToday ? Colors.blue[700] : Colors.black87)
+  //                             : Colors.grey[300],
+  //                         fontWeight: isToday ? FontWeight.bold : FontWeight.normal,
+  //                       ),
+  //                     ),
+  //                   ),
+  //                   if (isAttended && isCurrentMonth)
+  //                     Positioned(
+  //                       bottom: 4,
+  //                       right: 4,
+  //                       child: Container(
+  //                         width: 16,
+  //                         height: 16,
+  //                         decoration: BoxDecoration(
+  //                           color: Colors.amber[600],
+  //                           shape: BoxShape.circle,
+  //                         ),
+  //                         child: Icon(
+  //                           Icons.monetization_on,
+  //                           size: 12,
+  //                           color: Colors.white,
+  //                         ),
+  //                       ),
+  //                     ),
+  //                 ],
+  //               ),
+  //             ),
+  //           ),
+  //         ),
+  //       );
+  //     }
+  //
+  //     weeks.add(Row(children: days));
+  //
+  //     // 마지막 주가 다음 달이라면 끝
+  //     if (week == 4 && startDate.add(Duration(days: (week + 1) * 7)).month != currentMonth.month) {
+  //       break;
+  //     }
+  //   }
   Widget _buildCalendar() {
     final firstDay = DateTime(currentMonth.year, currentMonth.month, 1);
     final lastDay = DateTime(currentMonth.year, currentMonth.month + 1, 0);
@@ -531,13 +613,7 @@ class _MainScreenState extends State<MainScreen> {
           Expanded(
             child: GestureDetector(
               onTap: isCurrentMonth && isToday ? () {
-                setState(() {
-                  if (isAttended) {
-                    attendedDates.removeWhere((attendedDate) => _isSameDay(attendedDate, date));
-                  } else {
-                    attendedDates.add(date);
-                  }
-                });
+                _showAttendanceDialog(date, isAttended);
               } : null,
               child: Container(
                 height: 45,
@@ -596,6 +672,146 @@ class _MainScreenState extends State<MainScreen> {
 
     return Column(children: weeks);
   }
+
+  void _showAttendanceDialog(DateTime date, bool isAttended) {
+    // 이미 출석한 경우 다이얼로그 표시하지 않음
+    if (isAttended) return;
+
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          elevation: 16,
+          child: Container(
+            padding: EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20),
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Colors.blue[50]!,
+                  Colors.white,
+                ],
+              ),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // 아이콘
+                Container(
+                  width: 60,
+                  height: 60,
+                  decoration: BoxDecoration(
+                    color: Colors.blue[100],
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.event_available,
+                    size: 30,
+                    color: Colors.blue[700],
+                  ),
+                ),
+                SizedBox(height: 16),
+
+                // 제목
+                Text(
+                  '출석 체크',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.grey[800],
+                  ),
+                ),
+                SizedBox(height: 8),
+
+                // 내용
+                Text(
+                  '${date.month}월 ${date.day}일',
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.blue[600],
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                SizedBox(height: 4),
+                Text(
+                  '출석하시겠습니까?',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey[600],
+                    fontWeight: FontWeight.bold,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                SizedBox(height: 24),
+
+                // 버튼들
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        style: TextButton.styleFrom(
+                          padding: EdgeInsets.symmetric(vertical: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            side: BorderSide(color: Colors.grey[300]!),
+                          ),
+                        ),
+                        child: Text(
+                          '취소',
+                          style: TextStyle(
+                            color: Colors.grey[600],
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 12),
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () {
+                          setState(() {
+                            attendedDates.add(date);
+                          });
+                          Navigator.of(context).pop();
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.blue[400],
+                          padding: EdgeInsets.symmetric(vertical: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          elevation: 2,
+                        ),
+                        child: Text(
+                          '확인',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
 
   bool _isSameDay(DateTime a, DateTime b) { // 오늘 날짜만 출석 가능
     return a.year == b.year && a.month == b.month && a.day == b.day;
