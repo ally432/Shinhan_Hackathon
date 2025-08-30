@@ -54,3 +54,52 @@
 | 장유진 | 프론트엔드(계좌/예치금) | 계좌 생성, 예치금 설정, 우대금리 결과 및 보상 안내 화면 구현 |
 
 ---
+
+# 프로젝트명
+
+## 개발 환경
+
+### 1. 프론트엔드(Android Studio, Flutter, Emulator)
+- **Android Studio 설치**
+  
+- **Flutter 설치**
+
+- **에뮬레이터 설치 (Samsung S25)**
+  - `Android Studio`에서 AVD Manager를 열고, Samsung S25 모델을 선택하여 에뮬레이터를 설정하고 실행합니다.
+
+### 2. 백엔드(Spring Boot, MySQL)
+#### 2.1. **Spring Boot 설치**
+1. **JDK 설치**  
+   Spring Boot는 Java 기반이므로 Java Development Kit (JDK)가 필요합니다.
+
+2. **Spring Boot 설치**  
+
+3. **애플리케이션 설정**
+   - `application.properties` 파일 또는 `application.yml` 파일에서 데이터베이스 연결 정보를 설정합니다:
+     ```properties
+     spring.datasource.url=jdbc:mysql://localhost:3306/your_database_name
+     spring.datasource.username=your_database_username
+     spring.datasource.password=your_database_password
+     spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+     spring.jpa.database-platform=org.hibernate.dialect.MySQL8Dialect
+     ```
+
+#### 2.2. **MySQL 설치**
+1. **MySQL 설치** 
+
+### 3. 백엔드(Spring Boot 실행)
+#### 3.1. **실행**
+
+2. **실행**
+   - `sbb-0.0.1-SNAPSHOT.jar` 파일은 `build/libs` 디렉터리에 생성됩니다.
+   - 해당 JAR 파일을 실행하여 백엔드 서버를 시작합니다:
+     ```bash
+     java -jar build/libs/sbb-0.0.1-SNAPSHOT.jar
+     ```
+
+3. **서버 확인**
+   - 또는 `211.188.50.244:8080`에서 실행 가능합니다.
+
+### 4. 프로젝트 실행 방법
+1. **백엔드(Spring Boot) 서버 실행 또는 211.188.50.244:8080 이용**
+2. **프론트엔드(Android Studio 또는 Flutter)에서 백엔드 서버와 연결 후 실행**
