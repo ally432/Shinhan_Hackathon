@@ -12,14 +12,14 @@ extension _FirstOrNull<E> on Iterable<E> {
 }
 const String baseUrl = 'http://211.188.50.244:8080';
 
-class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+class HomeFailScreen extends StatefulWidget {
+  const HomeFailScreen({super.key});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  State<HomeFailScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeFailScreen> {
   Account? _mainAccount;   // 표시할 메인 계좌
   bool _loading = true;
   String? _error;
