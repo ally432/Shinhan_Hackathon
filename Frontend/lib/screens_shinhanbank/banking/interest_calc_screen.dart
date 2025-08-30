@@ -7,15 +7,13 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'achievement_result_screen.dart';
 
-
 const String baseUrl = 'http://211.188.50.244:8080';
 
 enum InterestMode { maturity, early }
 
-
 class InterestCalcScreen extends StatefulWidget {
   final Account account;
-  final InterestMode initialMode; // ✅ 초기 탭 지정
+  final InterestMode initialMode;
 
   const InterestCalcScreen({
     super.key,
@@ -41,6 +39,7 @@ class _InterestCalcScreenState extends State<InterestCalcScreen>
   String _expiryEnd = '-';
   int _expiryInterest = 0;
   int _expiryTotal = 0;
+  int _expBonus = 0; // 목적 달성 보너스 이자
 
   // ===== 중도해지(로컬계산) =====
   int _earlyPrincipal = 0;
@@ -48,6 +47,9 @@ class _InterestCalcScreenState extends State<InterestCalcScreen>
   int _earlyDays = 0;
   int _earlyInterest = 0;
   int _earlyTotal = 0;
+
+  // 성적 달성 조회 로딩 상태
+  bool _checkingAchv = false;
 
   @override
   void initState() {
@@ -60,6 +62,12 @@ class _InterestCalcScreenState extends State<InterestCalcScreen>
     _loadAll();
   }
 
+  @override
+  void dispose() {
+    _tab.dispose();
+    super.dispose();
+  }
+
   Future<void> _loadAll() async {
     await Future.wait([
       _loadExpiryFromServerOrFallback(),
@@ -68,25 +76,25 @@ class _InterestCalcScreenState extends State<InterestCalcScreen>
     if (mounted) setState(() {});
   }
 
-  // 🔹 성적 달성 조회 로딩 상태
-  bool _checkingAchv = false;
-
-  // 🔹 성적 달성 조회
-  // 🔹 성적 달성 확인 화면으로 이동 (API는 새 화면에서 호출)
+  // 성적 달성 확인 화면으로 이동하고, 결과를 받아 보너스 이자를 업데이트
   Future<void> _checkAchievement() async {
     if (_checkingAchv) return;
     setState(() => _checkingAchv = true);
     try {
-      await Navigator.push(
+      final result = await Navigator.push(
         context,
         MaterialPageRoute(builder: (_) => const AchievementResultScreen()),
       );
+
+      if (result != null && result is int && mounted) {
+        setState(() {
+          _expBonus = result;
+        });
+      }
     } finally {
       if (mounted) setState(() => _checkingAchv = false);
     }
   }
-
-
 
   // -------------------- 만기 이자: 서버 조회 (실패 시 폴백) --------------------
   Future<void> _loadExpiryFromServerOrFallback() async {
@@ -126,7 +134,6 @@ class _InterestCalcScreenState extends State<InterestCalcScreen>
       final expiryTotal = _toInt(rec['expiryTotalBalance']);
       final rateStr = rec['interestRate']?.toString();
       final srvRate = rateStr == null ? rate : double.tryParse(rateStr) ?? rate;
-
       final startYmd = rec['accountCreateDate']?.toString();
       final endYmd = rec['accountExpiryDate']?.toString();
 
@@ -152,6 +159,7 @@ class _InterestCalcScreenState extends State<InterestCalcScreen>
         _expiryEnd = widget.account.maturityDate;
         _expiryInterest = _roundInterest(principal, rate, 365);
         _expiryTotal = principal + _expiryInterest;
+        _expBonus = 0;
         _loadingExpiry = false;
       });
     }
@@ -162,13 +170,13 @@ class _InterestCalcScreenState extends State<InterestCalcScreen>
     final principal = widget.account.balance;
     final rate = widget.account.interestRate;
 
-    // 개설일 ~ 오늘 경과일 (최소 1일, 최대 365일 가정)
     final open = _parseAnyDate(widget.account.openingDate);
     final today = DateTime.now().toUtc().add(const Duration(hours: 9));
     int days = 0;
     if (open != null) {
       days = today.difference(open).inDays;
       if (days > 365) days = 365;
+      if (days < 0) days = 0;
     }
 
     final interest = _roundInterest(principal, rate, days);
@@ -188,14 +196,13 @@ class _InterestCalcScreenState extends State<InterestCalcScreen>
     return int.tryParse(s) ?? 0;
   }
 
-  /// round( (principal * (rate/100)) / 365 * days )
   int _roundInterest(int principal, double ratePct, int days) {
+    if (days <= 0) return 0;
     final interest =
     ((principal * (ratePct / 100)) / 365.0 * days.toDouble());
     return interest.round();
   }
 
-  /// '2025.08.17' | '2025-08-17' | '20250817' -> DateTime?
   DateTime? _parseAnyDate(String? v) {
     if (v == null || v.isEmpty || v == '-') return null;
     final digits = v.replaceAll(RegExp(r'\D'), '');
@@ -228,7 +235,6 @@ class _InterestCalcScreenState extends State<InterestCalcScreen>
           ],
         ),
       ),
-      // 🔹 하단 고정 버튼
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           color: Colors.white,
@@ -250,18 +256,12 @@ class _InterestCalcScreenState extends State<InterestCalcScreen>
                 borderRadius: BorderRadius.circular(16),
                 gradient: _checkingAchv
                     ? LinearGradient(
-                  colors: [
-                    Colors.grey.shade300,
-                    Colors.grey.shade400,
-                  ],
+                  colors: [Colors.grey.shade300, Colors.grey.shade400],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 )
                     : const LinearGradient(
-                  colors: [
-                    Color(0xFF4A90E2),
-                    Color(0xFF357ABD),
-                  ],
+                  colors: [Color(0xFF4A90E2), Color(0xFF357ABD)],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
@@ -358,7 +358,7 @@ class _InterestCalcScreenState extends State<InterestCalcScreen>
                           child: Text(
                             _expiryError!,
                             style: const TextStyle(
-                                color: Colors.orange, fontSize: 12),
+                                color: Colors.orange, fontSize: 12, fontWeight: FontWeight.bold),
                           ),
                         ),
                       ),
@@ -369,37 +369,22 @@ class _InterestCalcScreenState extends State<InterestCalcScreen>
                   const Divider(height: 20),
                   _row('이자', '+ ${_currency.format(_expiryInterest)}원',
                       big: true),
-                  _row('만기 예상액',
+                  _row('목적 달성 시 보너스 이자', '+ ${_currency.format(_expBonus)}원',
+                      big: true),
+                  const Divider(height: 20),
+                  _row('만기 예상액 (보너스 미포함)',
                       '${_currency.format(_expiryTotal)}원',
-                      big: true, bold: true),
+                      big: true),
+                  if (_expBonus > 0)
+                    _row('만기 예상액 (보너스 포함)',
+                        '${_currency.format(_expiryTotal + _expBonus)}원',
+                        big: true, bold: true),
                 ],
               ),
             ),
           ),
 
           // ===== 중도해지 이자 탭 =====
-          // SingleChildScrollView(
-          //   padding: const EdgeInsets.all(16),
-          //   child: _buildCard(
-          //     title: '중도해지 이자',
-          //     body: Column(
-          //       crossAxisAlignment: CrossAxisAlignment.start,
-          //       children: [
-          //         _row('원금', '${_currency.format(_earlyPrincipal)}원'),
-          //         _row('경과 일수', '$_earlyDays일'),
-          //         _row('금리', '연 ${_earlyRate.toStringAsFixed(2)}%'),
-          //         const SizedBox(height: 6),
-          //         const Divider(height: 20),
-          //         _row('중도해지 이자', '+ ${_currency.format(_earlyInterest)}원',
-          //             big: true),
-          //         _row('중도해지 예상액',
-          //             '${_currency.format(_earlyTotal)}원',
-          //             big: true, bold: true),
-          //       ],
-          //     ),
-          //   ),
-          // ),
-
           SingleChildScrollView(
             padding: const EdgeInsets.all(16),
             child: _buildCard(
@@ -412,11 +397,10 @@ class _InterestCalcScreenState extends State<InterestCalcScreen>
                   _row('금리', '연 ${_earlyRate.toStringAsFixed(2)}%'),
                   const SizedBox(height: 6),
                   const Divider(height: 20),
-                  // 경과 일수 1일이면 이자 없음
-                  _row('중도해지 이자', '+ ${_currency.format(_earlyDays == 1 ? 0 : _earlyInterest)}원',
+                  _row('중도해지 이자', '+ ${_currency.format(_earlyInterest)}원',
                       big: true),
                   _row('중도해지 예상액',
-                      '${_currency.format(_earlyDays == 1 ? _earlyPrincipal : _earlyTotal)}원',
+                      '${_currency.format(_earlyTotal)}원',
                       big: true, bold: true),
                 ],
               ),
@@ -463,5 +447,4 @@ class _InterestCalcScreenState extends State<InterestCalcScreen>
       ),
     );
   }
-
 }
