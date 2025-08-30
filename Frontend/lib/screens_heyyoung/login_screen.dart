@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../screens_shinhanbank/home_screen.dart';
+import '../screens_shinhanbank/home_screen_fail.dart';
+import '../widgets/custom_dialogs.dart'; // showCustomDialog 사용 중이면 유지
 import 'signup_screen.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
@@ -11,15 +13,18 @@ class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
   @override
-  _LoginScreenState createState() => _LoginScreenState();
+  State<LoginScreen> createState() => _LoginScreenState();
 }
 
 class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController(); // (미사용)
   static const String baseUrl = 'http://211.188.50.244:8080';
   bool _autoLogin = false;
   bool _isLoading = false;
+
+  /// 0: 만기 아님, 1: 목표 달성, 2: 목표 미달
+  int _maturityFlag = 0;
 
   @override
   void initState() {
@@ -35,6 +40,9 @@ class _LoginScreenState extends State<LoginScreen> {
     await prefs.remove('autoLogin');
   }
 
+  // =========================
+  // UI
+  // =========================
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -45,17 +53,31 @@ class _LoginScreenState extends State<LoginScreen> {
           child: Column(
             children: [
               const SizedBox(height: 60),
+              // 헤더
               Container(
                 margin: const EdgeInsets.only(bottom: 40),
                 child: Column(
                   children: [
-                    Text('신한', style: TextStyle(fontSize: 18, color: Colors.blue[600], fontWeight: FontWeight.w500)),
-                    Text('SOL', style: TextStyle(fontSize: 48, color: Colors.blue[600], fontWeight: FontWeight.bold)),
-                    Text('Bank', style: TextStyle(fontSize: 24, color: Colors.blue[600], fontWeight: FontWeight.bold)),
+                    Text('신한',
+                        style: TextStyle(
+                            fontSize: 18,
+                            color: Colors.blue[600],
+                            fontWeight: FontWeight.w500)),
+                    Text('SOL',
+                        style: TextStyle(
+                            fontSize: 48,
+                            color: Colors.blue[600],
+                            fontWeight: FontWeight.bold)),
+                    Text('Bank',
+                        style: TextStyle(
+                            fontSize: 24,
+                            color: Colors.blue[600],
+                            fontWeight: FontWeight.bold)),
                   ],
                 ),
               ),
               const SizedBox(height: 20),
+              // 이메일
               Container(
                 decoration: BoxDecoration(
                   color: Colors.white,
@@ -67,13 +89,16 @@ class _LoginScreenState extends State<LoginScreen> {
                   decoration: InputDecoration(
                     hintText: 'Email을 입력하세요.',
                     hintStyle: TextStyle(color: Colors.grey[400]),
-                    prefixIcon: Icon(Icons.person_outline, color: Colors.grey[400]),
+                    prefixIcon:
+                    Icon(Icons.person_outline, color: Colors.grey[400]),
                     border: InputBorder.none,
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                    contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 16),
                   ),
                 ),
               ),
               const SizedBox(height: 16),
+              // 패스워드(미사용)
               Container(
                 decoration: BoxDecoration(
                   color: Colors.white,
@@ -88,11 +113,13 @@ class _LoginScreenState extends State<LoginScreen> {
                     hintStyle: TextStyle(color: Colors.grey[400]),
                     prefixIcon: Icon(Icons.lock_outline, color: Colors.grey[400]),
                     border: InputBorder.none,
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                    contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 16),
                   ),
                 ),
               ),
               const SizedBox(height: 20),
+              // 자동로그인
               Row(
                 children: [
                   GestureDetector(
@@ -103,11 +130,18 @@ class _LoginScreenState extends State<LoginScreen> {
                           width: 20,
                           height: 20,
                           decoration: BoxDecoration(
-                            color: _autoLogin ? Colors.blue[600] : Colors.white,
-                            border: Border.all(color: _autoLogin ? Colors.blue[600]! : Colors.grey[400]!),
+                            color:
+                            _autoLogin ? Colors.blue[600] : Colors.white,
+                            border: Border.all(
+                                color: _autoLogin
+                                    ? Colors.blue[600]!
+                                    : Colors.grey[400]!),
                             borderRadius: BorderRadius.circular(3),
                           ),
-                          child: _autoLogin ? const Icon(Icons.check, color: Colors.white, size: 14) : null,
+                          child: _autoLogin
+                              ? const Icon(Icons.check,
+                              color: Colors.white, size: 14)
+                              : null,
                         ),
                         const SizedBox(width: 8),
                         const Text('자동로그인'),
@@ -117,29 +151,59 @@ class _LoginScreenState extends State<LoginScreen> {
                 ],
               ),
               const SizedBox(height: 30),
+              // 로그인 버튼
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: _handleLogin,
+                  onPressed: _isLoading ? null : _handleLogin,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.blue[600],
                     padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8)),
                   ),
-                  child: const Text('로그인', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+                  child: Text(
+                    _isLoading ? '로그인 중...' : '로그인',
+                    style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold),
+                  ),
                 ),
               ),
               const SizedBox(height: 30),
+              // 하단 링크
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  GestureDetector(onTap: () {}, child: Text('ID찾기', style: TextStyle(fontSize: 14, color: Colors.grey[600]))),
-                  Container(margin: const EdgeInsets.symmetric(horizontal: 16), width: 1, height: 12, color: Colors.grey[400]),
-                  GestureDetector(onTap: () {}, child: Text('PW찾기', style: TextStyle(fontSize: 14, color: Colors.grey[600]))),
-                  Container(margin: const EdgeInsets.symmetric(horizontal: 16), width: 1, height: 12, color: Colors.grey[400]),
                   GestureDetector(
-                    onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => SignupScreen())),
-                    child: Text('회원가입', style: TextStyle(fontSize: 14, color: Colors.grey[600])),
+                      onTap: () {},
+                      child: Text('ID찾기',
+                          style: TextStyle(
+                              fontSize: 14, color: Colors.grey[600]))),
+                  Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 16),
+                      width: 1,
+                      height: 12,
+                      color: Colors.grey[400]),
+                  GestureDetector(
+                      onTap: () {},
+                      child: Text('PW찾기',
+                          style: TextStyle(
+                              fontSize: 14, color: Colors.grey[600]))),
+                  Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 16),
+                      width: 1,
+                      height: 12,
+                      color: Colors.grey[400]),
+                  GestureDetector(
+                    onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => SignupScreen())),
+                    child: Text('회원가입',
+                        style: TextStyle(
+                            fontSize: 14, color: Colors.grey[600])),
                   ),
                 ],
               ),
@@ -150,6 +214,9 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
+  // =========================
+  // 로그인 처리
+  // =========================
   Future<void> _handleLogin() async {
     final userId = _emailController.text.trim();
     if (userId.isEmpty) {
@@ -161,33 +228,11 @@ class _LoginScreenState extends State<LoginScreen> {
 
     setState(() => _isLoading = true);
 
-    /*
-    //====테스트 코드====//
-    // 1. 실제 네트워크 통신 대신 잠시 기다립니다.
-    await Future.delayed(const Duration(milliseconds: 500));
-    if (!mounted) return;
-
-    // 2. 로그인 성공 메시지를 보여줍니다.
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('로그인 되었습니다. (테스트 모드)')),
-    );
-
-    // 3. 계좌가 '있는' 상황을 가정하고 바로 '시험 보험 개설' 화면(AccountSelectionScreen)으로 이동합니다.
-    Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(builder: (_) => const AccountSelectionScreen()),
-          (route) => false,
-    );
-
-    // 4. 로딩 상태를 해제합니다.
-    if (mounted) setState(() => _isLoading = false);
-    */
-
-    // =====기존 코드=====//
     try {
       final url = Uri.parse('$baseUrl/auth/login');
       final res = await http
-          .post(url,
+          .post(
+        url,
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'userId': userId}),
       )
@@ -199,7 +244,6 @@ class _LoginScreenState extends State<LoginScreen> {
         final data = jsonDecode(res.body) as Map<String, dynamic>;
         final userKey = (data['userKey'] ?? '') as String;
 
-        // (방어 코드) 혹시라도 비어있으면 오류 처리
         if (userKey.isEmpty) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('로그인 응답에 userKey가 없습니다.')),
@@ -209,134 +253,12 @@ class _LoginScreenState extends State<LoginScreen> {
 
         final prefs = await SharedPreferences.getInstance();
         await prefs.setBool('isLoggedIn', true);
-        await prefs.setString('userKey', userKey);     // userKey만 저장
+        await prefs.setString('userKey', userKey);
         await prefs.setBool('autoLogin', _autoLogin);
 
-        await _checkProductsAndRoute(); // 이후 흐름
+        await _checkProductsAndRoute(userKey); // 이후 흐름
       } else if (res.statusCode == 401) {
-        await showDialog(
-          context: context,
-          barrierDismissible: true,
-          builder: (_) => Dialog(
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-            elevation: 16,
-            child: Container(
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(20),
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    Colors.white,
-                    Colors.red.shade50,
-                  ],
-                ),
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // 에러 아이콘
-                  Container(
-                    width: 64,
-                    height: 64,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          Colors.red.shade400,
-                          Colors.red.shade600,
-                        ],
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.red.shade200,
-                          blurRadius: 12,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: const Icon(
-                      Icons.error_outline,
-                      color: Colors.white,
-                      size: 32,
-                    ),
-                  ),
-
-                  const SizedBox(height: 20),
-
-                  // 제목
-                  const Text(
-                    '오류',
-                    style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
-                    ),
-                  ),
-
-                  const SizedBox(height: 12),
-
-                  // 내용
-                  const Text(
-                    '아이디가 존재하지 않습니다.',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.black54,
-                      height: 1.5,
-                    ),
-                  ),
-
-                  const SizedBox(height: 24),
-
-                  // 버튼
-                  Container(
-                    width: double.infinity,
-                    height: 50,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(25),
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          Colors.red.shade400,
-                          Colors.red.shade600,
-                        ],
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.red.shade200,
-                          blurRadius: 8,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: Material(
-                      color: Colors.transparent,
-                      child: InkWell(
-                        borderRadius: BorderRadius.circular(25),
-                        onTap: () => Navigator.of(context).pop(),
-                        child: const Center(
-                          child: Text(
-                            '확인',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        );
+        await _showErrorDialog('오류', '아이디가 존재하지 않습니다.');
       } else if (res.statusCode == 400) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('요청 형식이 올바르지 않습니다.')),
@@ -356,190 +278,60 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  Future<void> _checkProductsAndRoute() async {
-    final prefs = await SharedPreferences.getInstance();
-
-    final userKey = prefs.getString('userKey') ?? '';
-    if (userKey.isEmpty) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('userKey가 없습니다. 다시 로그인해 주세요.')),
-      );
-      return;
-    }
-
+  // =========================
+  // 제품/계좌 상태 → 라우팅
+  // =========================
+  Future<void> _checkProductsAndRoute(String userKey) async {
     try {
-      // 두 API 병렬 호출
-      final results = await Future.wait<bool>([
-        _hasDemandDeposit(userKey),  // 수시입출금 계좌 존재 여부
-        _hasSavingsDeposit(userKey), // 예금(시험보험 등) 존재 여부
-      ]);
+      // 1. 먼저 예/적금 계좌 존재 여부를 확인합니다.
+      final hasSavings = await _hasSavingsDeposit(userKey);
 
-      final hasDemand = results[0];
-      final hasSavings = results[1];
+      if (!hasSavings) {
+        // 예/적금 계좌가 있다면, 만기 상태를 확인합니다.
+        final flag = await _fetchMaturityFlag(userKey);
 
-      if (!mounted) return;
+        if (!mounted) return;
+
+        if (flag == 1) {
+          // 목표 달성 → 성공 홈
+          await _showPopup(
+            '🎉 목표 달성 성공!',
+            '성적계좌가 만기되었습니다. 우대 금리가 적용된 최종 금액을 확인해보세요!',
+            const HomeScreen(),
+          );
+          return;
+        } else if (flag == 2) {
+          // 목표 미달 → 실패 홈
+          await _showPopup(
+            '다시 도전해봐요',
+            '만기일에 목표 조건을 충족하지 못했습니다. 다음 목표를 새로 설정해보세요!',
+            const HomeFailScreen(),
+          );
+          return;
+        }
+      }
+
+      // 2. 만기 팝업이 필요 없으면, 수시입출금 계좌 존재 여부를 확인합니다.
+      final hasDemand = await _hasDemandDeposit(userKey);
 
       if (!hasDemand) {
-        // 수시입출금 계좌가 없으면 → 개설 유도 (가입 페이지로 이동하는 기존 다이얼로그)
-        _showAccountCreationDialog();
+        await _showAccountCreationDialog();
         return;
       }
 
-      if (hasDemand && hasSavings) {
-        // 둘 다 존재 → 팝업만 띄우고, 가입(개설) 페이지로는 절대 안 감
-        await showDialog(
-          context: context,
-          barrierDismissible: false,
-          builder: (_) => Dialog(
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-            elevation: 16,
-            child: Container(
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(20),
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    Colors.white,
-                    Colors.blue.shade50,
-                  ],
-                ),
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // 아이콘
-                  Container(
-                    width: 64,
-                    height: 64,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          Colors.orange.shade400,
-                          Colors.orange.shade600,
-                        ],
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.orange.shade200,
-                          blurRadius: 12,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: const Icon(
-                      Icons.info_outline,
-                      color: Colors.white,
-                      size: 32,
-                    ),
-                  ),
-
-                  const SizedBox(height: 20),
-
-                  // 제목
-                  const Text(
-                    '알림',
-                    style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
-                    ),
-                  ),
-
-                  const SizedBox(height: 12),
-
-                  // 내용
-                  const Text(
-                    '수시입출금 계좌와 예금이\n이미 모두 존재합니다.',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black54,
-                      height: 1.5,
-                    ),
-                  ),
-
-                  const SizedBox(height: 24),
-
-                  // 버튼
-                  Container(
-                    width: double.infinity,
-                    height: 50,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(25),
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          Colors.blue.shade400,
-                          Colors.blue.shade600,
-                        ],
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.blue.shade200,
-                          blurRadius: 8,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: Material(
-                      color: Colors.transparent,
-                      child: InkWell(
-                        borderRadius: BorderRadius.circular(25),
-                        onTap: () => Navigator.of(context).pop(),
-                        child: const Center(
-                          child: Text(
-                            '확인',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        );
-
-        // 확인 후엔 홈/선택 화면 등으로만 이동 (가입 페이지 X)
-        if (!mounted) return;
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.setBool('justLoggedIn', true);
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (_) => const HomeScreen()),
-              (route) => false,
-        );
-        return;
-      }
-
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setBool('justLoggedIn', true);
-
-      // 수시입출금만 있고 예금은 없을 때: 가입페이지로 가지 말고 사용 가능한 화면으로 이동
+      // 3. 입출금 계좌가 있고 만기 팝업이 필요 없는 경우
+      // (예/적금 계좌가 없거나, 만기가 되지 않은 경우)
       Navigator.pushAndRemoveUntil(
         context,
-        MaterialPageRoute(builder: (_) => const AccountSelectionScreen()),
+        MaterialPageRoute(builder: (_) => hasSavings ? const HomeScreen() : const AccountSelectionScreen()),
             (route) => false,
       );
+
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('계좌 확인 중 오류: $e')),
       );
-      // 오류 시에도 가입(개설) 페이지로는 가지 않도록, 안전하게 선택 화면으로 보냄
       Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(builder: (_) => const AccountSelectionScreen()),
@@ -548,7 +340,92 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  /// 수시입출금 계좌 존재 여부 확인
+
+  // =========================
+  // 만기 플래그 조회 (UI 없음)
+  // =========================
+  Future<int> _fetchMaturityFlag(String userKey) async {
+    try {
+      // 백엔드가 userKey를 받도록 변경한 엔드포인트 기준
+      final uri = Uri.parse('$baseUrl/deposit/maturity-flag')
+          .replace(queryParameters: {'userKey': userKey});
+      final res = await http.get(uri).timeout(const Duration(seconds: 7));
+
+      if (res.statusCode != 200) return 0;
+
+      final obj = jsonDecode(res.body) as Map<String, dynamic>;
+      final flag = (obj['maturity'] ?? 0) as int; // 0/1/2
+      return flag;
+    } catch (_) {
+      return 0;
+    }
+  }
+
+  // 만기 상태 팝업 처리
+  Future<void> _fetchMaturityFlagAndMaybePopup(String email) async {
+    try {
+      final uri = Uri.parse('$baseUrl/deposit/maturity-flag')
+          .replace(queryParameters: {'email': email});
+      final res = await http.get(uri).timeout(const Duration(seconds: 5));
+
+      if (res.statusCode == 200) {
+        final json = jsonDecode(res.body) as Map<String, dynamic>;
+        final flag = (json['maturity'] ?? 0) as int;
+
+        setState(() {
+          _maturityFlag = flag;  // 상태 업데이트
+        });
+
+        // Debugging log
+        print("Maturity flag received: $flag");
+
+        if (flag == 1) {
+          // 목표 달성 팝업
+          await _showPopup(
+            '🎉 목표 달성 성공!',
+            '성적계좌가 만기되었습니다. 우대 금리가 적용된 최종 금액을 확인해보세요!',
+            const HomeScreen(),
+          );
+        } else if (flag == 2) {
+          // 목표 미달 팝업
+          await _showPopup(
+            '다시 열심히 해보자~',
+            '성적계좌가 만기되었습니다. 우대 금리가 적용된 최종 금액을 확인해보세요!',
+            const HomeFailScreen(),
+          );
+        } else {
+          // 만기 아님
+          print("No maturity flag set, proceeding with normal flow.");
+        }
+      }
+    } catch (e) {
+      print("Error fetching maturity flag: $e");
+    }
+  }
+
+  // =========================
+  // 팝업(확인 → 다음 화면 이동)
+  // =========================
+  Future<void> _showPopup(String title, String content, Widget nextScreen) async {
+    // 프로젝트에 custom_dialogs가 없다면 showDialog로 대체하세요.
+    await showCustomDialog(
+      context: context,
+      title: title,
+      content: content,
+      onConfirm: () {
+        Navigator.pop(context); // close dialog
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (_) => nextScreen),
+              (route) => false,
+        );
+      },
+    );
+  }
+
+  // =========================
+  // 수시입출금 계좌 존재 여부
+  // =========================
   Future<bool> _hasDemandDeposit(String userKey) async {
     final uri = Uri.parse('$baseUrl/deposit/findOpenDeposit')
         .replace(queryParameters: {'userKey': userKey});
@@ -560,7 +437,6 @@ class _LoginScreenState extends State<LoginScreen> {
     if (res.statusCode != 200) return false;
 
     final root = jsonDecode(res.body);
-    // 백엔드/외부 응답이 REC가 객체일 수도, 리스트일 수도 있어서 모두 처리
     final rec = root['REC'];
     if (rec is List) {
       return rec.isNotEmpty;
@@ -571,7 +447,9 @@ class _LoginScreenState extends State<LoginScreen> {
     return false;
   }
 
-  /// 예금(시험보험 등) 존재 여부 확인
+  // =========================
+  // 예금(시험계좌 등) 존재 여부
+  // =========================
   Future<bool> _hasSavingsDeposit(String userKey) async {
     final uri = Uri.parse('$baseUrl/deposit/findSavingsDeposit')
         .replace(queryParameters: {'userKey': userKey});
@@ -586,15 +464,14 @@ class _LoginScreenState extends State<LoginScreen> {
     final recObj = (root['REC'] as Map?) ?? const {};
     final list = (recObj['list'] as List?) ?? const [];
 
-    // “시험보험” 특정 상품만 확인하려면 아래 any 조건을 사용
-    // return list.any((e) => e is Map && (e['accountName']?.toString() ?? '') == '시험보험');
-
-    // 예금이 하나라도 있으면 true
     return list.isNotEmpty;
   }
 
-  void _showAccountCreationDialog() {
-    showDialog(
+  // =========================
+  // 수시입출금 계좌 개설 다이얼로그 (Future 반환!)
+  // =========================
+  Future<void> _showAccountCreationDialog() {
+    return showDialog<void>(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
@@ -621,15 +498,13 @@ class _LoginScreenState extends State<LoginScreen> {
           actionsAlignment: MainAxisAlignment.center,
           actions: [
             TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
+              onPressed: () => Navigator.of(context).pop(),
               child: Text('취소', style: TextStyle(color: Colors.grey[600])),
             ),
             ElevatedButton(
               onPressed: () {
                 Navigator.of(context).pop();
-                // 계좌 개설을 위해 약관 화면으로 이동
+                // 계좌 개설 약관 화면으로 이동
                 Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -651,74 +526,114 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  /* 만기되었음을 알리는 팝업
-  void _maybeShowMaturityPopup() {
-    if (!mounted || _mainAccount == null) return;
-    final acc = _mainAccount!;
-
-    // 수시입출금은 제외 (우린 예금만 체크)
-    final isSavings = acc.productName != '수시입출금';
-    if (!isSavings) return;
-
-    // '시험/성적' 키워드가 계좌명에 포함될 때만
-    final hasKeyword = acc.productName.contains('시험') ||
-        acc.productName.contains('성적') ||
-        acc.accountName.contains('시험') ||
-        acc.accountName.contains('성적');
-    if (!hasKeyword) return;
-
-    // 만기일이 오늘인지 확인 (형식: yyyy.MM.dd)
-    final todayStr = DateFormat('yyyy.MM.dd').format(DateTime.now().toUtc().add(const Duration(hours: 9)));
-    if (acc.maturityDate.isEmpty || acc.maturityDate == '-') return;
-    if (acc.maturityDate != todayStr) return;
-
-    // 살짝 지연 후 팝업 (UI 안정)
-    Future.delayed(const Duration(milliseconds: 300), () {
-      if (!mounted) return;
-      showCustomDialog(
-        context: context,
-        title: '🎉 목표 달성 성공!',
-        content: '성적계좌가 만기되었습니다. 우대 금리가 적용된 최종 금액을 확인해보세요!',
-        onConfirm: () {
-          Navigator.pop(context);
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => AccountDetailsScreen(account: acc)),
-          );
-        },
-      );
-    });
+  Future<void> _showErrorDialog(String title, String content) {
+    return showDialog<void>(  // 오류 다이얼로그 추가
+      context: context,
+      barrierDismissible: true,
+      builder: (_) => Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        elevation: 16,
+        child: Container(
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Colors.white,
+                Colors.red.shade50,
+              ],
+            ),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // 에러 아이콘
+              Container(
+                width: 64,
+                height: 64,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      Colors.red.shade400,
+                      Colors.red.shade600,
+                    ],
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.red.shade200,
+                      blurRadius: 12,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: const Icon(
+                  Icons.error_outline,
+                  color: Colors.white,
+                  size: 32,
+                ),
+              ),
+              const SizedBox(height: 20),
+              Text(title,
+                  style: const TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87)),
+              const SizedBox(height: 12),
+              Text(content,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                      fontSize: 16, color: Colors.black54, height: 1.5)),
+              const SizedBox(height: 24),
+              Container(
+                width: double.infinity,
+                height: 50,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(25),
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      Colors.red.shade400,
+                      Colors.red.shade600,
+                    ],
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.red.shade200,
+                      blurRadius: 8,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(25),
+                    onTap: () => Navigator.of(context).pop(),
+                    child: const Center(
+                      child: Text(
+                        '확인',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
-  */
-
-
-  /* 실제 서버 연동 시 사용할 코드*/
-  Future<bool> _checkSavingsAccountFromServer() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final userKey = prefs.getString('userKey') ?? '';
-
-      if (userKey.isEmpty) return false;
-
-      final url = Uri.parse('$baseUrl/accounts/check-savings');
-      final headers = {'Content-Type': 'application/json'};
-      final body = jsonEncode({'userKey': userKey});
-
-      final res = await http.post(url, headers: headers, body: body)
-          .timeout(const Duration(seconds: 5));
-
-      if (res.statusCode == 200) {
-        final data = jsonDecode(res.body) as Map<String, dynamic>;
-        return (data['hasSavingsAccount'] ?? false) as bool;
-      }
-      return false;
-    } catch (_) {
-      return false;
-    }
-  }
-
-
-
 
   @override
   void dispose() {

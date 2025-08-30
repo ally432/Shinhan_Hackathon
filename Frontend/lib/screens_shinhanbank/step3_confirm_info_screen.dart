@@ -29,8 +29,8 @@ class _Step3ConfirmInfoScreenState extends State<Step3ConfirmInfoScreen> {
   Future<void> _loadUserInfo() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
 
-    final storedName = prefs.getString('userName') ?? '정보 없음';
-    final storedBirthdate = prefs.getString('userBirthdate') ?? '정보 없음';
+    final storedName = prefs.getString('userName') ?? '김몰리';
+    final storedBirthdate = prefs.getString('userBirthdate') ?? '20200612';
 
     String residentNumberPrefix = '정보 없음';
     if (storedBirthdate.length == 8) {

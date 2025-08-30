@@ -50,12 +50,13 @@ class AccountManagementScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildSectionTitle('기본정보'),
+                  _buildSectionTitle('기본 정보'),
                   _buildInfoRow('계좌상품', account.productName),
                   _buildInfoRow('계좌개설일', account.openingDate),
                   _buildInfoRow('만기일', account.maturityDate), // 만기
                   _buildInfoRow('기본금리', '연 ${account.interestRate}%'),
                 ],
+
               ),
             ),
             const SizedBox(height: 12),
@@ -64,7 +65,7 @@ class AccountManagementScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildSectionTitle('시험 보험 관리'),
+                  _buildSectionTitle('계좌 관리'),
                   _buildManagementMenu(context, '예금 만기 이자 조회'),
                   _buildManagementMenu(context, '중도 해지 이자 조회'),
                   _buildManagementMenu(context, '계좌 해지'),
@@ -99,7 +100,7 @@ class AccountManagementScreen extends StatelessWidget {
 
   Widget _buildManagementMenu(BuildContext context, String title) {
     return ListTile(
-      title: Text(title, style: const TextStyle(fontSize: 16)),
+      title: Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold,)),
       trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
       onTap: () {
         if (title == '계좌 해지') {
