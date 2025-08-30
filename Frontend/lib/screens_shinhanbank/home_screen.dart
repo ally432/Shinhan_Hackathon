@@ -196,16 +196,16 @@ class _HomeScreenState extends State<HomeScreen> {
         _loading = false;
       });
     } finally {
-      if (mounted) {
-        final prefs = await SharedPreferences.getInstance();
-        final bool justLoggedIn = prefs.getBool('justLoggedIn') ?? false;
-
-        if (justLoggedIn) {
-          // Popup flag 있으면 팝업 발생
-          _maybeShowMaturityPopup();
-          await prefs.remove('justLoggedIn');
-        }
-      }
+      // if (mounted) {
+      //   final prefs = await SharedPreferences.getInstance();
+      //   final bool justLoggedIn = prefs.getBool('justLoggedIn') ?? false;
+      //
+      //   if (justLoggedIn) {
+      //     // Popup flag 있으면 팝업 발생
+      //     _maybeShowMaturityPopup();
+      //     await prefs.remove('justLoggedIn');
+      //   }
+      // }
     }
   }
 
@@ -249,45 +249,45 @@ class _HomeScreenState extends State<HomeScreen> {
     return null;
   }
 
-  // -------------------- 팝업 조건 --------------------
-
-  void _maybeShowMaturityPopup() {
-    if (!mounted || _mainAccount == null) return;
-    final acc = _mainAccount!;
-
-    // 수시입출금은 제외 (우린 예금만 체크)
-    final isSavings = acc.productName != '수시입출금';
-    if (!isSavings) return;
-
-    // '시험/성적' 키워드가 계좌명에 포함될 때만
-    final hasKeyword = acc.productName.contains('시험') ||
-        acc.productName.contains('성적') ||
-        acc.accountName.contains('시험') ||
-        acc.accountName.contains('성적');
-    if (!hasKeyword) return;
-
-    // 만기일이 오늘인지 확인 (형식: yyyy.MM.dd)
-    final todayStr = DateFormat('yyyy.MM.dd').format(DateTime.now().toUtc().add(const Duration(hours: 9)));
-    if (acc.maturityDate.isEmpty || acc.maturityDate == '-') return;
-    if (acc.maturityDate != todayStr) return;
-
-    // 살짝 지연 후 팝업 (UI 안정)
-    Future.delayed(const Duration(milliseconds: 300), () {
-      if (!mounted) return;
-      showCustomDialog(
-        context: context,
-        title: '🎉 목표 달성 성공!',
-        content: '성적계좌가 만기되었습니다. 우대 금리가 적용된 최종 금액을 확인해보세요!',
-        onConfirm: () {
-          Navigator.pop(context);
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => AccountDetailsScreen(account: acc)),
-          );
-        },
-      );
-    });
-  }
+  // // -------------------- 팝업 조건 --------------------
+  //
+  // void _maybeShowMaturityPopup() {
+  //   if (!mounted || _mainAccount == null) return;
+  //   final acc = _mainAccount!;
+  //
+  //   // 수시입출금은 제외 (우린 예금만 체크)
+  //   final isSavings = acc.productName != '수시입출금';
+  //   if (!isSavings) return;
+  //
+  //   // '시험/성적' 키워드가 계좌명에 포함될 때만
+  //   final hasKeyword = acc.productName.contains('시험') ||
+  //       acc.productName.contains('성적') ||
+  //       acc.accountName.contains('시험') ||
+  //       acc.accountName.contains('성적');
+  //   if (!hasKeyword) return;
+  //
+  //   // 만기일이 오늘인지 확인 (형식: yyyy.MM.dd)
+  //   final todayStr = DateFormat('yyyy.MM.dd').format(DateTime.now().toUtc().add(const Duration(hours: 9)));
+  //   if (acc.maturityDate.isEmpty || acc.maturityDate == '-') return;
+  //   if (acc.maturityDate != todayStr) return;
+  //
+  //   // 살짝 지연 후 팝업 (UI 안정)
+  //   Future.delayed(const Duration(milliseconds: 300), () {
+  //     if (!mounted) return;
+  //     showCustomDialog(
+  //       context: context,
+  //       title: '🎉 목표 달성 성공!',
+  //       content: '성적계좌가 만기되었습니다. 우대 금리가 적용된 최종 금액을 확인해보세요!',
+  //       onConfirm: () {
+  //         Navigator.pop(context);
+  //         Navigator.push(
+  //           context,
+  //           MaterialPageRoute(builder: (_) => AccountDetailsScreen(account: acc)),
+  //         );
+  //       },
+  //     );
+  //   });
+  // }
 
   // -------------------- 매핑/기본값 --------------------
 
