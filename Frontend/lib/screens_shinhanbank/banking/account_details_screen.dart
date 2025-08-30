@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:Frontend/screens_heyyoung/main_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:Frontend/models/account_model.dart';
 import 'package:Frontend/models/transaction_model.dart';
@@ -6,6 +7,7 @@ import 'package:Frontend/screens_shinhanbank/banking/account_management_screen.d
 import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:Frontend/screens_shinhanbank/home_screen.dart';
 
 class AccountDetailsScreen extends StatefulWidget {
   final Account account;
@@ -104,7 +106,15 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
       appBar: AppBar(
         title: const Text('거래내역조회'),
         actions: [
-          IconButton(onPressed: () {}, icon: const Icon(Icons.home_outlined)),
+          IconButton(
+            icon: const Icon(Icons.home_outlined),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => MainScreen()),
+              );
+            },
+          ),
         ],
       ),
       body: Column(

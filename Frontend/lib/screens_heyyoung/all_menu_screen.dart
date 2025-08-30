@@ -95,6 +95,8 @@ class _AllMenuScreenState extends State<AllMenuScreen> {
                               SizedBox(width: 8),
                               Text(
                                 '1412345, 소프트웨어학부',
+                                maxLines: 1,                     // ← 추가
+                                overflow: TextOverflow.ellipsis,
                                 style: TextStyle(
                                   fontSize: 12,
                                   color: Colors.grey[600],

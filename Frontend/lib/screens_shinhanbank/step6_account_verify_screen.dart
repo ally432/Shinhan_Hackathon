@@ -280,7 +280,7 @@ class _Step6AccountVerifyScreenState extends State<Step6AccountVerifyScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('영상 통화 인증'),
-        content: const Text('상담사 연결을 통해 비대면 인증을 시작합니다.\n(실제 영상 통화는 연결되지 않습니다.)'),
+        content: const Text('상담사 연결을 통해 비대면 인증을 시작합니다.'),
         actions: [
           TextButton(onPressed: () => Navigator.pop(context), child: const Text('닫기')),
           TextButton(onPressed: () => Navigator.pop(context), child: const Text('연결')),

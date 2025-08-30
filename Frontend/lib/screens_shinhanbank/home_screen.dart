@@ -429,33 +429,6 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-<<<<<<< HEAD
-            const SizedBox(height: 24),
-            Padding(
-              padding: const EdgeInsets.only(left: 8.0), // 👈 원하는 만큼 왼쪽 여백을 줍니다. (예: 8)
-              child: _buildSectionHeader(
-                context: context,
-                title: '대표 계좌',
-                onPressed: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => const AllAccountsScreen()));
-                },
-              ),
-            ),
-
-            const SizedBox(height: 12),
-            InkWell(
-              onTap: () {
-                if (_mainAccount == null) return;
-                Navigator.push(context, MaterialPageRoute(
-                  builder: (context) => AccountDetailsScreen(account: _mainAccount!),
-                ));
-              },
-              child: Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: Colors.blue[800],
-                  borderRadius: BorderRadius.circular(20),
-=======
             // 포인트 정보 배너
             Container(
               margin: const EdgeInsets.all(20),
@@ -465,7 +438,6 @@ class _HomeScreenState extends State<HomeScreen> {
                   colors: [Color(0xFF4A90E2), Color(0xFF357ABD)],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
->>>>>>> 17348e7b2c76ab38be742ba1ce7ecbb0572d0db7
                 ),
                 borderRadius: BorderRadius.circular(16),
               ),
@@ -484,24 +456,6 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-<<<<<<< HEAD
-                        const Icon(Icons.account_balance, color: Colors.white, size: 20),
-                        const SizedBox(width: 8),
-                        Text(_mainAccount!.accountName, style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 30.0),
-                      child: Text(_mainAccount!.accountNumber, style: TextStyle(color: Colors.blue[100], fontSize: 14)),
-                    ),
-                    const SizedBox(height: 11),
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: Text(
-                        '${currencyFormat.format(_mainAccount!.balance)}원',
-                        style: const TextStyle(color: Colors.white, fontSize: 32, fontWeight: FontWeight.bold),
-=======
                         Text(
                           '마이신한포인트 \t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t ${currencyFormat.format(2020)}',
                           style: const TextStyle(
@@ -540,7 +494,6 @@ class _HomeScreenState extends State<HomeScreen> {
                       style: TextStyle(
                         fontSize: 14,
                         color: Colors.grey,
->>>>>>> 17348e7b2c76ab38be742ba1ce7ecbb0572d0db7
                       ),
                     ),
                   ),
@@ -878,10 +831,6 @@ class _HomeScreenState extends State<HomeScreen> {
           _mainAccount = _mapSavingsToAccount(savings);
           _loading = false;
         });
-<<<<<<< HEAD
-        // _maybeShowMaturityPopup(); // 기존 코드
-=======
->>>>>>> 17348e7b2c76ab38be742ba1ce7ecbb0572d0db7
         return;
       }
 
@@ -903,27 +852,10 @@ class _HomeScreenState extends State<HomeScreen> {
         _loading = false;
       });
     } finally {
-<<<<<<< HEAD
-      if (mounted) {
-        final prefs = await SharedPreferences.getInstance();
-        final bool justLoggedIn = prefs.getBool('justLoggedIn') ?? false;
-
-        if (justLoggedIn) {
-          // Popup flag 있으면 팝업 발생
-          _maybeShowMaturityPopup();
-          await prefs.remove('justLoggedIn');
-        }
-      }
-    }
-  }
-
-  // 예금(시험보험 등) 첫 번째 계좌 반환
-=======
 
     }
   }
 
->>>>>>> 17348e7b2c76ab38be742ba1ce7ecbb0572d0db7
   Future<Map<String, dynamic>?> _fetchSavings(String userKey) async {
     final uri = Uri.parse('$baseUrl/deposit/findSavingsDeposit')
         .replace(queryParameters: {'userKey': userKey});
@@ -939,10 +871,6 @@ class _HomeScreenState extends State<HomeScreen> {
     return (first is Map) ? Map<String, dynamic>.from(first) : null;
   }
 
-<<<<<<< HEAD
-  // 수시입출금(입출금 통장) 첫 번째 계좌 반환
-=======
->>>>>>> 17348e7b2c76ab38be742ba1ce7ecbb0572d0db7
   Future<Map<String, dynamic>?> _fetchDemand(String userKey) async {
     final uri = Uri.parse('$baseUrl/deposit/findOpenDeposit')
         .replace(queryParameters: {'userKey': userKey});
@@ -965,52 +893,6 @@ class _HomeScreenState extends State<HomeScreen> {
     }
     return null;
   }
-<<<<<<< HEAD
-
-  // -------------------- 팝업 조건 --------------------
-
-  void _maybeShowMaturityPopup() {
-    if (!mounted || _mainAccount == null) return;
-    final acc = _mainAccount!;
-
-    // 수시입출금은 제외 (우린 예금만 체크)
-    final isSavings = acc.productName != '수시입출금';
-    if (!isSavings) return;
-
-    // '시험/성적' 키워드가 계좌명에 포함될 때만
-    final hasKeyword = acc.productName.contains('시험') ||
-        acc.productName.contains('성적') ||
-        acc.accountName.contains('시험') ||
-        acc.accountName.contains('성적');
-    if (!hasKeyword) return;
-
-    // 만기일이 오늘인지 확인 (형식: yyyy.MM.dd)
-    final todayStr = DateFormat('yyyy.MM.dd').format(DateTime.now().toUtc().add(const Duration(hours: 9)));
-    if (acc.maturityDate.isEmpty || acc.maturityDate == '-') return;
-    if (acc.maturityDate != todayStr) return;
-
-    // 살짝 지연 후 팝업 (UI 안정)
-    Future.delayed(const Duration(milliseconds: 300), () {
-      if (!mounted) return;
-      showCustomDialog(
-        context: context,
-        title: '🎉 목표 달성 성공!',
-        content: '성적계좌가 만기되었습니다. 우대 금리가 적용된 최종 금액을 확인해보세요!',
-        onConfirm: () {
-          Navigator.pop(context);
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => AccountDetailsScreen(account: acc)),
-          );
-        },
-      );
-    });
-  }
-
-  // -------------------- 매핑/기본값 --------------------
-
-=======
->>>>>>> 17348e7b2c76ab38be742ba1ce7ecbb0572d0db7
   Account _mapSavingsToAccount(Map<String, dynamic> m) {
     String fmt(String? yyyymmdd) {
       if (yyyymmdd == null || yyyymmdd.length != 8) return '-';
@@ -1044,11 +926,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Account _fallbackAccount() {
     return Account(
       bankName: '신한은행',
-<<<<<<< HEAD
-      accountName: '쏠편한 입출금통장 (저축예금)',
-=======
       accountName: '편한 입출금통장 (저축예금)',
->>>>>>> 17348e7b2c76ab38be742ba1ce7ecbb0572d0db7
       accountNumber: '111-555-123123',
       balance: 251094,
       productName: '시험 보험 계좌',

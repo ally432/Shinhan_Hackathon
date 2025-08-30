@@ -111,20 +111,31 @@ class _TransferFundsScreenState extends State<TransferFundsScreen> {
       final totalStr = _currency.format(_totalPayout);
       final msg = '✅ 해지 완료: ${baseStr}원 입금 처리되었습니다.';
 
-      // 4) 내비게이션 (성공/실패 분기)
-      if (bonusOk) {
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (_) => const success.HomeScreen()),
-              (route) => false,
-        );
-      } else {
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (_) => const fail.HomeScreen()),
-              (route) => false,
-        );
-      }
+      Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (_) => const success.HomeScreen()),
+                (route) => false,);
+
+      // Navigator.pushAndRemoveUntil(
+      //       context,
+      //       MaterialPageRoute(builder: (_) => const fail.HomeFailScreen()),
+      //           (route) => false,
+      //     );
+
+      // // 4) 내비게이션 (성공/실패 분기)
+      // if (bonusOk) {
+      //   Navigator.pushAndRemoveUntil(
+      //     context,
+      //     MaterialPageRoute(builder: (_) => const success.HomeScreen()),
+      //         (route) => false,
+      //   );
+      // } else {
+      //   Navigator.pushAndRemoveUntil(
+      //     context,
+      //     MaterialPageRoute(builder: (_) => const fail.HomeScreen()),
+      //         (route) => false,
+      //   );
+      // }
 
       // (선택) 목적지 화면에서 스낵바 띄우고 싶으면 파라미터로 메시지 넘겨서 거기서 표시하세요.
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:Frontend/screens_shinhanbank/step2_id_photo_screen.dart';
+// import 'package:Frontend/screens_shinhanbank/home_screen_fail.dart';
+// import 'package:Frontend/screens_shinhanbank/banking/interest_calc_screen.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
@@ -120,6 +122,8 @@ class _AccountSelectionScreenState extends State<AccountSelectionScreen> {
       context,
       MaterialPageRoute(
         builder: (context) => const Step2IdPhotoScreen(),
+        // builder: (context) => const HomeFailScreen(),
+
       ),
     );
   }
