@@ -160,9 +160,6 @@ class _AccountTerminationScreenState extends State<AccountTerminationScreen> {
                 _buildInfoRow('실제 가입 기간', '$_earlyTerminationDays일'),
                 _buildInfoRow('중도해지 이자', '+ ${_currency.format(_earlyTerminationInterest)}원', isHighlight: true),
                 const Divider(height: 24),
-                _buildInfoRow('달성 이자율 (보너스)', _loadingBonus ? '조회 중…' : (_bonusRate > 0 ? '+ ${_bonusRate.toStringAsFixed(2)}%p' : '없음'), isHighlight: _bonusRate > 0),
-                _buildInfoRow('추가 이자 (보너스)', _loadingBonus ? '계산 중…' : '+ ${_currency.format(_calcBonusInterest())}원', isHighlight: _bonusRate > 0),
-                const Divider(height: 24),
                 _buildInfoRow(
                   '중도해지 시 최종 지급액',
                   '${_currency.format(_finalPayoutAmount + _calcBonusInterest())}원',

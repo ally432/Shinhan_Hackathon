@@ -109,11 +109,7 @@ class _TransferFundsScreenState extends State<TransferFundsScreen> {
       final baseStr  = _currency.format(widget.amount);
       final bonusStr = _currency.format(widget.bonusAmount);
       final totalStr = _currency.format(_totalPayout);
-      final msg = widget.bonusAmount > 0
-          ? (bonusOk
-          ? '✅ 해지 완료: 기본 ${baseStr}원 + 보너스 ${bonusStr}원 = 총 ${totalStr}원 입금 처리되었습니다.'
-          : '⚠️ 해지 완료(보너스 입금 실패): 기본 ${baseStr}원은 입금, 보너스는 추후 재시도 바랍니다.')
-          : '✅ 해지 완료: ${baseStr}원 입금 처리되었습니다.';
+      final msg = '✅ 해지 완료: ${baseStr}원 입금 처리되었습니다.';
 
       // 4) 내비게이션 (성공/실패 분기)
       if (bonusOk) {
@@ -184,19 +180,19 @@ class _TransferFundsScreenState extends State<TransferFundsScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            // 요약 안내
-            '해지 금액 ${_currency.format(widget.amount)}원'
-                '${widget.bonusAmount > 0 ? ' + 추가 이자 ${_currency.format(widget.bonusAmount)}원' : ''}\n'
-                '총 입금액: ${_currency.format(_totalPayout)}원',
-            style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            '해지 대상: ${widget.account.accountName} (${widget.account.accountNumber})',
-            style: TextStyle(color: Colors.grey[700]),
-          ),
-          const SizedBox(height: 24),
+          // Text(
+          //   // 요약 안내
+          //   '해지 금액 ${_currency.format(widget.amount)}원'
+          //       '${widget.bonusAmount > 0 ? ' + 추가 이자 ${_currency.format(widget.bonusAmount)}원' : ''}\n'
+          //       '총 입금액: ${_currency.format(_totalPayout)}원',
+          //   style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+          // ),
+          // const SizedBox(height: 8),
+          // Text(
+          //   '해지 대상: ${widget.account.accountName} (${widget.account.accountNumber})',
+          //   style: TextStyle(color: Colors.grey[700]),
+          // ),
+          // const SizedBox(height: 24),
 
           // 목적지(수시입출금) 정보
           DropdownButtonFormField<String>(
@@ -209,15 +205,27 @@ class _TransferFundsScreenState extends State<TransferFundsScreen> {
             items: ['신한은행', '국민은행', '우리은행', '하나은행']
                 .map((bank) => DropdownMenuItem(value: bank, child: Text(bank)))
                 .toList(),
-            decoration: const InputDecoration(border: OutlineInputBorder()),
-          ),
+                decoration: InputDecoration(
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: Colors.grey[300]!),
+                    ),
+                    fillColor: Colors.white,
+                    filled: true
+                ),
+            ),
           const SizedBox(height: 12),
           TextField(
             controller: _accountController,
             onChanged: (_) => _validateInput(),
-            decoration: const InputDecoration(
-              hintText: "'-' 없이 수시입출금 계좌번호 입력",
-              border: OutlineInputBorder(),
+            decoration: InputDecoration(
+                hintText: "'-' 없이 수시입출금 계좌번호 입력",
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: Colors.grey[300]!),
+                ),
+                fillColor: Colors.white,
+                filled: true
             ),
             keyboardType: TextInputType.number,
           ),
