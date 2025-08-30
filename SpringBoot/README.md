@@ -1,4 +1,4 @@
-# 📌 Backend README
+<img width="142" height="365" alt="image" src="https://github.com/user-attachments/assets/b7dc635f-ec39-44cc-9a99-1a67b190162b" /># 📌 Backend README
 
 ## 1) 환경 / 툴 버전
 
@@ -68,9 +68,10 @@
 ## 4) 스키마 (ERD 요약)
 
 ```
-UserInfo (user_id PK)
-   1 ── 1  GradeRecord (user_id PK, FK -> user_info.user_id)
-                 1 ── *  SubjectGrade (id PK, FK -> grade_record.user_id)
+USER_INFO (user_id PK, user_key)
+   ├─ 1:N ── CHECKING_ACCOUNT  (user_key FK → user_info.user_key)
+   ├─ 1:N ── GRADE_RECORD      (user_id FK → user_info.user_id)
+   └─ 1:1 ── TARGET_SCORE      (user_key UQ(FK) → user_info.user_key)
 ```
 
 ---
@@ -90,57 +91,64 @@ UserInfo (user_id PK)
 
 ### 5.2 checking\_account
 
+| 컬럼명            | 타입          | PK | 설명                              |
+| -------------- | ----------- | -- | ------------------------------- |
+| account\_no    | VARCHAR(16) | ✅  | 계좌 번호                           |
+| user\_key      | VARCHAR(60) |    | 사용자 키 (`user_info.user_key` 참조) |
+| bank\_code     | VARCHAR(3)  |    | 은행 코드                           |
+| balance        | BIGINT      |    | 잔액                              |
+| currency       | VARCHAR(6)  |    | 통화 코드 (예: KRW, USD, EUR)        |
+| currency\_name | VARCHAR(16) |    | 통화 이름 (예: 원화, 달러, 유로)           |
+
+
+### 5.3 grade\_record
+
 | 컬럼명            | 타입          | PK | 설명                    |
 | -------------- | ----------- | -- | --------------------- |
-| account\_no    | VARCHAR(16) | ✅  | 계좌 번호 (PK)            |
-| user\_key      | VARCHAR(60) |    | UserInfo.user\_key 참조 |
-| bank\_code     | VARCHAR(3)  |    | 은행 코드                 |
-| balance        | BIGINT      |    | 잔액                    |
-| currency       | VARCHAR(6)  |    | 통화 코드 (예: KRW, USD)   |
-| currency\_name | VARCHAR(16) |    | 통화 이름 (예: 원화, 달러)     |
+| id             | BIGINT      | ✅  | PK, 자동 증가(ID ENTITY)  |
+| user\_id       | VARCHAR(40) |    | 사용자 식별자               |
+| total\_credits | INT         |    | 총 이수학점                |
+| total\_gpa     | DOUBLE      |    | 평균평점(GPA, 예: 0.0–4.5) |
+| year           | INT         |    | 연도(예: 2024, 2025)     |
+| semester       | INT         |    | 학기(1, 2)              |
+| type           | VARCHAR(10) |    | 구분(예: ‘전공’)           |
 
-* **Unique**: (user\_key, account\_no)
-* **Index**: bank\_code
+### 5.4 target\_score
 
-### 5.3 deposit\_info
+| 컬럼명         | 타입           | PK | 설명                   |
+| ----------- | ------------ | -- | -------------------- |
+| id          | BIGINT       | ✅  | PK, 자동 증가(ID)        |
+| user\_key   | VARCHAR(60)  | UQ | 사용자 키(외부 API 발급)     |
+| goal\_sem1  | DECIMAL(3,2) |    | 1학기 목표 GPA (예: 4.30) |
+| goal\_sem2  | DECIMAL(3,2) |    | 2학기 목표 GPA (예: 4.00) |
+| created\_at | DATETIME     |    | 생성일시                 |
+| updated\_at | DATETIME     |    | 수정일시                 |
 
-| 컬럼명                     | 타입          | PK | 설명                    |
-| ----------------------- | ----------- | -- | --------------------- |
-| account\_no             | VARCHAR(16) | ✅  | 계좌 번호 (PK)            |
-| user\_key               | VARCHAR(60) |    | UserInfo.user\_key 참조 |
-| bank\_code              | VARCHAR(3)  |    | 은행 코드                 |
-| bank\_name              | VARCHAR(20) |    | 은행 이름                 |
-| account\_name           | VARCHAR(20) |    | 계좌 이름                 |
-| withdrawal\_bank\_code  | VARCHAR(3)  |    | 출금 은행 코드              |
-| withdrawal\_account\_no | VARCHAR(16) |    | 출금 계좌 번호              |
-| subscription\_period    | VARCHAR(20) |    | 가입 기간 (예: 12M, 1Y)    |
-| deposit\_balance        | BIGINT      |    | 예치 잔액                 |
-| interest\_rate          | DOUBLE      |    | 금리                    |
-| account\_create\_date   | VARCHAR(8)  |    | 계좌 개설일 (YYYYMMDD)     |
-| account\_expiry\_date   | VARCHAR(8)  |    | 계좌 만기일 (YYYYMMDD)     |
-| goal\_score             | VARCHAR(3)  |    | 목표 점수                 |
+### 5.5 deposit_contract_min
 
-* **Unique**: (user\_key, account\_no)
-* **Index**: bank\_code, withdrawal\_bank\_code
+| 컬럼명            | 타입           | PK | 설명                                   |
+| -------------- | ------------ | -- | ------------------------------------ |
+| id             | BIGINT       | ✅  | 계약 고유 식별자                            |
+| email          | VARCHAR(120) |    | 사용자 이메일                              |
+| principal\_krw | BIGINT       |    | 예금 원금 (원화)                           |
+| maturity       | INT          |    | 만기 상태 (0: 만기 아님, 1: 목표 달성, 2: 목표 미달) |
+| opened\_date   | DATE         |    | 계좌 개설일                               |
+| maturity\_date | DATE         |    | 만기일                                  |
+| created\_at    | DATETIME     |    | 생성일시                                 |
+| updated\_at    | DATETIME     |    | 수정일시                                 |
 
-### 5.4 grade\_record
-
-| 컬럼명            | 타입          | PK | 설명                      |
-| -------------- | ----------- | -- | ----------------------- |
-| id             | BIGINT      | ✅  | 고유 식별자 (자동 증가)          |
-| user\_id       | VARCHAR(40) |    | 사용자 식별자 (user\_info 참조) |
-| total\_credits | INT         |    | 총 이수 학점                 |
-| total\_gpa     | DOUBLE      |    | 총 평점 평균                 |
-| year           | INT         |    | 년도                      |
-| semester       | INT         |    | 학기 (1: 1학기, 2: 2학기)     |
-| type           | VARCHAR(10) |    | 구분 (전공/교양 등)            |
 
 ---
 
 ## 6) API 연동
 
-* **앱 API KEY 발급**
-* **사용자 계정 생성**
+API KEY 관리 - API KEY 발급
+
+계정관리 - 계정 생성
+
+수시입출금 - 수시입출금 상품등록, 계좌 생성, 계좌 목록 조회, 계좌 조회(단건), 계좌 입금, 계좌거래내역조회
+
+예금 -예금상품등록, 예금상품조회, 예금계좌생성, 예금계좌목록 조회, 예금납입상세조회, 예금만기이자조회, 예금계좌해지
 
 ---
 
@@ -149,12 +157,5 @@ UserInfo (user_id PK)
 1. MySQL에서 `test` 스키마 생성
 2. `application.properties` DB 연결 정보 수정
 3. Spring Boot 실행
-
----
-
-## 오늘 작업한 내용
-
-* ✅ 사용자 데이터 추가
-* ✅ 목표 성적 DB 데이터 앱에 잘 가져와지지 않는 문제 해결 
 
 ---
