@@ -164,11 +164,10 @@ class _InterestCalcScreenState extends State<InterestCalcScreen>
 
     // 개설일 ~ 오늘 경과일 (최소 1일, 최대 365일 가정)
     final open = _parseAnyDate(widget.account.openingDate);
-    final today = DateTime.now();
-    int days = 1;
+    final today = DateTime.now().toUtc().add(const Duration(hours: 9));
+    int days = 0;
     if (open != null) {
       days = today.difference(open).inDays;
-      if (days < 1) days = 1;
       if (days > 365) days = 365;
     }
 
@@ -230,20 +229,106 @@ class _InterestCalcScreenState extends State<InterestCalcScreen>
         ),
       ),
       // 🔹 하단 고정 버튼
-      bottomNavigationBar: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-          child: SizedBox(
-            width: double.infinity,
-            height: 48,
-            child: ElevatedButton(
-              onPressed: _checkingAchv ? null : _checkAchievement,
-              child: _checkingAchv
-                  ? const SizedBox(
-                width: 20, height: 20,
-                child: CircularProgressIndicator(strokeWidth: 2),
-              )
-                  : const Text('성적 달성 확인하기'),
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 10,
+              offset: const Offset(0, -2),
+            ),
+          ],
+        ),
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
+            child: Container(
+              width: double.infinity,
+              height: 56,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(16),
+                gradient: _checkingAchv
+                    ? LinearGradient(
+                  colors: [
+                    Colors.grey.shade300,
+                    Colors.grey.shade400,
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                )
+                    : const LinearGradient(
+                  colors: [
+                    Color(0xFF4A90E2),
+                    Color(0xFF357ABD),
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                boxShadow: _checkingAchv
+                    ? []
+                    : [
+                  BoxShadow(
+                    color: const Color(0xFF4A90E2).withOpacity(0.3),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: ElevatedButton(
+                onPressed: _checkingAchv ? null : _checkAchievement,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.transparent,
+                  shadowColor: Colors.transparent,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  padding: EdgeInsets.zero,
+                ),
+                child: _checkingAchv
+                    ? Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    const Text(
+                      '확인 중...',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                )
+                    : Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(
+                      Icons.school_outlined,
+                      color: Colors.white,
+                      size: 22,
+                    ),
+                    const SizedBox(width: 8),
+                    const Text(
+                      '성적 달성 확인하기',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
           ),
         ),
@@ -293,6 +378,28 @@ class _InterestCalcScreenState extends State<InterestCalcScreen>
           ),
 
           // ===== 중도해지 이자 탭 =====
+          // SingleChildScrollView(
+          //   padding: const EdgeInsets.all(16),
+          //   child: _buildCard(
+          //     title: '중도해지 이자',
+          //     body: Column(
+          //       crossAxisAlignment: CrossAxisAlignment.start,
+          //       children: [
+          //         _row('원금', '${_currency.format(_earlyPrincipal)}원'),
+          //         _row('경과 일수', '$_earlyDays일'),
+          //         _row('금리', '연 ${_earlyRate.toStringAsFixed(2)}%'),
+          //         const SizedBox(height: 6),
+          //         const Divider(height: 20),
+          //         _row('중도해지 이자', '+ ${_currency.format(_earlyInterest)}원',
+          //             big: true),
+          //         _row('중도해지 예상액',
+          //             '${_currency.format(_earlyTotal)}원',
+          //             big: true, bold: true),
+          //       ],
+          //     ),
+          //   ),
+          // ),
+
           SingleChildScrollView(
             padding: const EdgeInsets.all(16),
             child: _buildCard(
@@ -304,15 +411,12 @@ class _InterestCalcScreenState extends State<InterestCalcScreen>
                   _row('경과 일수', '$_earlyDays일'),
                   _row('금리', '연 ${_earlyRate.toStringAsFixed(2)}%'),
                   const SizedBox(height: 6),
-                  const Text(
-                    '계산식: round( (원금 × (금리/100)) ÷ 365 × 일수 )',
-                    style: TextStyle(fontSize: 12, color: Colors.black54),
-                  ),
                   const Divider(height: 20),
-                  _row('중도해지 이자', '+ ${_currency.format(_earlyInterest)}원',
+                  // 경과 일수 1일이면 이자 없음
+                  _row('중도해지 이자', '+ ${_currency.format(_earlyDays == 1 ? 0 : _earlyInterest)}원',
                       big: true),
                   _row('중도해지 예상액',
-                      '${_currency.format(_earlyTotal)}원',
+                      '${_currency.format(_earlyDays == 1 ? _earlyPrincipal : _earlyTotal)}원',
                       big: true, bold: true),
                 ],
               ),

@@ -271,21 +271,21 @@ class _AchievementResultScreenState extends State<AchievementResultScreen> {
           const SizedBox(height: 8),
 
           if (record == null)
-            const Text('해당 학기 성적 데이터가 없습니다.', style: TextStyle(color: Colors.black54))
+            const Text('해당 학기 성적 데이터가 없습니다.', style: TextStyle(color: Colors.black54, fontWeight: FontWeight.bold))
           else ...[
             _row('총 이수학점', record.totalCredits?.toString() ?? '-'),
             _row('GPA(4.5)', _fmtScore(record.totalGpa)),
           ],
 
           const SizedBox(height: 4),
-          _row('목표 성적', _fmtScore(goal)),
+          _row('목표 성적', _fmtScore(goal),),
           if (achieved != null) _row('달성 여부', achieved ? '달성' : '미달성'),
           if (record != null) _row('추가 이자율(해당 학기)', _fmtBonus(bonus)),
 
           const SizedBox(height: 6),
           const Text(
             '※ 최종 적용은 두 학기 중 최대치 1회',
-            style: TextStyle(fontSize: 12, color: Colors.black45),
+            style: TextStyle(fontSize: 12, color: Colors.black45, fontWeight: FontWeight.bold),
           ),
         ],
       ),
@@ -299,7 +299,7 @@ class _AchievementResultScreenState extends State<AchievementResultScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(k, style: TextStyle(color: Colors.grey[700])),
+          Text(k, style: TextStyle(color: Colors.grey[700], fontWeight: FontWeight.bold)),
           Text(v, style: const TextStyle(fontWeight: FontWeight.w600)),
         ],
       ),

@@ -11,7 +11,7 @@ class SignupScreen extends StatefulWidget {
 }
 
 class _SignupScreenState extends State<SignupScreen> {
-  final String baseUrl = "http://10.0.2.2:8080";
+  final String baseUrl = "http://211.188.50.244:8080";
   final _scrollController = ScrollController(); // 스크롤 컨트롤러 추가
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -425,9 +425,9 @@ class _SignupScreenState extends State<SignupScreen> {
       return;
     }
 
-    if (_phoneNumberController.text.length != 11) {
+    if (_phoneNumberController.text.length != 11 || !_phoneNumberController.text.contains('010')) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('숫자만 입력해주세요')),
+        const SnackBar(content: Text('올바른 형식으로 입력해주세요.')),
       );
       return;
     }
