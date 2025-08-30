@@ -525,6 +525,9 @@ class _LoginScreenState extends State<LoginScreen> {
         return;
       }
 
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('justLoggedIn', true);
+
       // 수시입출금만 있고 예금은 없을 때: 가입페이지로 가지 말고 사용 가능한 화면으로 이동
       Navigator.pushAndRemoveUntil(
         context,
