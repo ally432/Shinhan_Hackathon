@@ -133,10 +133,12 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
                     Expanded(
                       child: OutlinedButton(
                         onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => AccountManagementScreen(account: widget.account)),
-                          );
+                          if(widget.account.accountName == "The 성적 UP"){
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => AccountManagementScreen(account: widget.account)),
+                            );
+                          }
                         },
                         child: const Text('계좌관리'),
                       ),
