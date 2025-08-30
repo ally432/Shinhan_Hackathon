@@ -107,7 +107,7 @@ class _GradeScreenState extends State<GradeScreen> {
                       style: TextStyle(
                         fontSize: 12,
                         color: Colors.blue[700],
-                        fontWeight: FontWeight.w500,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),
@@ -218,6 +218,7 @@ class _GradeScreenState extends State<GradeScreen> {
                                     style: TextStyle(
                                       fontSize: 13,
                                       color: Colors.black87,
+                                      fontWeight: FontWeight.bold,
                                     ),
                                   ),
                                 ),
@@ -229,6 +230,7 @@ class _GradeScreenState extends State<GradeScreen> {
                                     style: TextStyle(
                                       fontSize: 13,
                                       color: Colors.black87,
+                                      fontWeight: FontWeight.bold,
                                     ),
                                   ),
                                 ),
@@ -240,6 +242,7 @@ class _GradeScreenState extends State<GradeScreen> {
                                     style: TextStyle(
                                       fontSize: 13,
                                       color: Colors.black87,
+                                      fontWeight: FontWeight.bold,
                                     ),
                                   ),
                                 ),
@@ -259,7 +262,7 @@ class _GradeScreenState extends State<GradeScreen> {
                                       textAlign: TextAlign.center,
                                       style: TextStyle(
                                         fontSize: 13,
-                                        fontWeight: FontWeight.w500,
+                                        fontWeight: FontWeight.bold,
                                         color: _getGradeTextColor(grade['grade']),
                                       ),
                                     ),
@@ -321,6 +324,7 @@ class _GradeScreenState extends State<GradeScreen> {
           style: TextStyle(
             fontSize: 12,
             color: Colors.grey[600],
+            fontWeight: FontWeight.bold,
           ),
         ),
         SizedBox(height: 4),

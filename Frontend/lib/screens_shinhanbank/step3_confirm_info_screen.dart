@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:Frontend/screens_shinhanbank/info_input_screen.dart';
+import 'package:Frontend/screens_shinhanbank/info_input/set_amount_screen.dart';
 import 'package:Frontend/widgets/step_layout.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -51,8 +51,9 @@ class _Step3ConfirmInfoScreenState extends State<Step3ConfirmInfoScreen> {
         children: [
           SizedBox(
             width: 80,
-            child: Text(label, style: TextStyle(color: Colors.grey[600])),
+            child: Text(label, style: TextStyle(color: Colors.grey[600], fontWeight: FontWeight.bold)),
           ),
+          const SizedBox(width: 16), // 원하는 간격으로 숫자 조절 (예: 16)
           Text(value,
               style:
               const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
@@ -69,21 +70,21 @@ class _Step3ConfirmInfoScreenState extends State<Step3ConfirmInfoScreen> {
         Navigator.push(
             context,
             MaterialPageRoute(
-                builder: (context) => const InfoInputScreen()));
+                builder: (context) => const SetAmountScreen()));
       },
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text('신분증 정보가 맞는지 확인해주세요.',
-              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
           const SizedBox(height: 24),
           ClipRRect(
             borderRadius: BorderRadius.circular(12.0),
             child: Image.file(
               File(widget.imagePath),
               width: double.infinity,
-              height: 200,
-              fit: BoxFit.cover,
+              height: 230,
+              fit: BoxFit.contain,
             ),
           ),
           const SizedBox(height: 24),
