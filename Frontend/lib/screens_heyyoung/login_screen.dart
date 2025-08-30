@@ -515,6 +515,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
         // 확인 후엔 홈/선택 화면 등으로만 이동 (가입 페이지 X)
         if (!mounted) return;
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setBool('justLoggedIn', true);
         Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (_) => const HomeScreen()),
@@ -522,9 +524,6 @@ class _LoginScreenState extends State<LoginScreen> {
         );
         return;
       }
-
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setBool('justLoggedIn', true);
 
       // 수시입출금만 있고 예금은 없을 때: 가입페이지로 가지 말고 사용 가능한 화면으로 이동
       Navigator.pushAndRemoveUntil(
@@ -649,6 +648,45 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
+  /* 만기되었음을 알리는 팝업
+  void _maybeShowMaturityPopup() {
+    if (!mounted || _mainAccount == null) return;
+    final acc = _mainAccount!;
+
+    // 수시입출금은 제외 (우린 예금만 체크)
+    final isSavings = acc.productName != '수시입출금';
+    if (!isSavings) return;
+
+    // '시험/성적' 키워드가 계좌명에 포함될 때만
+    final hasKeyword = acc.productName.contains('시험') ||
+        acc.productName.contains('성적') ||
+        acc.accountName.contains('시험') ||
+        acc.accountName.contains('성적');
+    if (!hasKeyword) return;
+
+    // 만기일이 오늘인지 확인 (형식: yyyy.MM.dd)
+    final todayStr = DateFormat('yyyy.MM.dd').format(DateTime.now().toUtc().add(const Duration(hours: 9)));
+    if (acc.maturityDate.isEmpty || acc.maturityDate == '-') return;
+    if (acc.maturityDate != todayStr) return;
+
+    // 살짝 지연 후 팝업 (UI 안정)
+    Future.delayed(const Duration(milliseconds: 300), () {
+      if (!mounted) return;
+      showCustomDialog(
+        context: context,
+        title: '🎉 목표 달성 성공!',
+        content: '성적계좌가 만기되었습니다. 우대 금리가 적용된 최종 금액을 확인해보세요!',
+        onConfirm: () {
+          Navigator.pop(context);
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => AccountDetailsScreen(account: acc)),
+          );
+        },
+      );
+    });
+  }
+  */
 
 
   /* 실제 서버 연동 시 사용할 코드*/
